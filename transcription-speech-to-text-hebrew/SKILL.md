@@ -135,7 +135,7 @@ python scripts/transcribe.py \
 
 To query a job directly (raw API):
 ```bash
-curl -X POST https://us-central1-whisper-cloud-functions.cloudfunctions.net/check_modal_job \
+curl -X POST https://text-ops-subs.com/api/v2/transcribe-status \
   -H "Content-Type: application/json" \
   -H "textops-api-key: $TEXTOPS_API_KEY" \
   -d '{"textopsJobId": "<JOB_ID>"}'
