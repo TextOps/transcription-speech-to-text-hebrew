@@ -317,7 +317,7 @@ def main():
                 output_path = os.path.join(os.getcwd(), base + "_transcript" + ext)
 
             download_url = file_arg
-            file_size_mb = size_bytes / (1024 * 1024) if size_bytes else 0
+            file_size_mb = int(size_bytes) / (1024 * 1024) if size_bytes else 0
         else:
             filename     = os.path.basename(file_arg)
             file_size_mb = os.path.getsize(file_arg) / (1024 * 1024)
