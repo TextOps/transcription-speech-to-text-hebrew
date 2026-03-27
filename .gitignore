@@ -3,6 +3,5 @@
 
 # Except these
 !.gitignore
-!SKILL.md
-!scripts/
-!scripts/**
+!transcription-speech-to-text-hebrew/
+!transcription-speech-to-text-hebrew/**
