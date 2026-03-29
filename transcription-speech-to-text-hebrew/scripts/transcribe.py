@@ -360,7 +360,7 @@ def main():
         [sys.executable, os.path.join(script_dir, "json_to_text.py"),
          json_path, "--output", txt_path,
          "--diarization", "true" if has_diarize else "false"],
-        capture_output=True, text=True
+        capture_output=True, text=True, encoding="utf-8"
     )
     if result.stdout:
         log(result.stdout.strip())

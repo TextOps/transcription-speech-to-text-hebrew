@@ -48,6 +48,8 @@ python scripts/transcribe.py \
 `--min-speakers` / `--max-speakers` — only relevant when `--diarization true`. Default: min=1, max=10.
 `--output-format text` — always use this. The script always saves **both** a `.json` and a `.txt`, regardless of this flag.
 
+**Hebrew filenames and content are fully supported.** File names, paths, and transcription content may contain Hebrew characters — the scripts use UTF-8 throughout. If you see an encoding error (`cp1255`, `cp1252`, `UnicodeDecodeError`), it means the terminal or a subprocess is not using UTF-8. This is a system configuration issue, not a script bug — tell the user to run Python with `-X utf8` or set `PYTHONUTF8=1`.
+
 **Output filenames** (set automatically, no need to specify):
 - Local file: `<basename>_transcript.json` + `<basename>_transcript.txt` — saved next to the original file
 - URL: `<filename-from-server>_transcript.json` + `<filename-from-server>_transcript.txt` — saved in the current directory
