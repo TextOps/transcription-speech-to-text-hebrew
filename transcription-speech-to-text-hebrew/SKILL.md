@@ -66,13 +66,13 @@ The script uses consistent `[TAG]` prefixes — scan for these while it runs:
 
 | Line you'll see | What to tell the user |
 |---|---|
-| `[PROBE] OK \| ...` | "הקובץ נגיש, מתחיל..." |
-| `[UPLOAD] Uploading: file.mp4 (X MB)...` | "מעלה את הקובץ (X MB)..." |
-| `[UPLOAD] Complete: file.mp4` | "הועלה, שולח לעיבוד..." |
-| `[JOB] ID: abc123` | "מעבד... (Job ID: abc123)" |
-| `[WAIT] First check in Xs` | "מחכה לתוצאה..." |
-| `[PROGRESS] 45% (30s elapsed)` | "מתמלל... 45%" |
-| `[PROGRESS] 75% (55s elapsed)` | "כמעט סיים... 75%" |
+| `[PROBE] OK \| ...` | Tell user: file is accessible, continuing |
+| `[UPLOAD] Uploading: file.mp4 (X MB)...` | Tell user: uploading file (X MB)... |
+| `[UPLOAD] Complete: file.mp4` | Tell user: upload done, sending for processing |
+| `[JOB] ID: abc123` | Tell user: processing started (Job ID: abc123) |
+| `[WAIT] First check in Xs` | Tell user: waiting for result... |
+| `[PROGRESS] 45% (30s elapsed)` | Tell user: transcribing... 45% |
+| `[PROGRESS] 75% (55s elapsed)` | Tell user: almost done... 75% |
 | `[DONE] Processing complete (Xs total)` | Proceed to Step 4 |
 | `ERROR: ...` | Go to Troubleshooting |
 | `WARNING: Timeout...` | Use `--job-id` to resume |
