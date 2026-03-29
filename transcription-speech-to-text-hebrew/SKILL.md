@@ -66,18 +66,18 @@ The script uses consistent `[TAG]` prefixes — scan for these while it runs:
 
 | Line you'll see | What to tell the user |
 |---|---|
-| `[PROBE] OK \| ...` | URL is accessible, continuing |
-| `[UPLOAD] Uploading: file.mp4 (X MB)...` | "Uploading your file..." |
-| `[UPLOAD] Complete: file.mp4` | "Uploaded, sending for processing..." |
-| `[JOB] ID: abc123` | Note this ID in case you need to recover |
-| `[WAIT] First check in Xs` | "Processing, waiting for result..." |
-| `[PROGRESS] 45% (30s elapsed)` | "Still processing... 45%" |
-| `[PROGRESS] 75% (55s elapsed)` | "Almost done, 75%" |
+| `[PROBE] OK \| ...` | "הקובץ נגיש, מתחיל..." |
+| `[UPLOAD] Uploading: file.mp4 (X MB)...` | "מעלה את הקובץ (X MB)..." |
+| `[UPLOAD] Complete: file.mp4` | "הועלה, שולח לעיבוד..." |
+| `[JOB] ID: abc123` | "מעבד... (Job ID: abc123)" |
+| `[WAIT] First check in Xs` | "מחכה לתוצאה..." |
+| `[PROGRESS] 45% (30s elapsed)` | "מתמלל... 45%" |
+| `[PROGRESS] 75% (55s elapsed)` | "כמעט סיים... 75%" |
 | `[DONE] Processing complete (Xs total)` | Proceed to Step 4 |
 | `ERROR: ...` | Go to Troubleshooting |
 | `WARNING: Timeout...` | Use `--job-id` to resume |
 
-**Update the user at meaningful jumps (~25% each)** — don't relay every `[PROGRESS]` line. The user mainly wants to know it's still running and roughly where it is.
+**עדכן את המשתמש בכל מעבר שלב** — כלומר: כשמתחילה העלאה, כשהיא מסתיימת, כשהעבודה נשלחת, וכשהתמלול מתקדם. לגבי `[PROGRESS]`: עדכן בקפיצות של ~25% בלבד, לא כל שורה.
 
 ## Step 3.5: Convert existing JSON (optional)
 
