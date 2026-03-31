@@ -229,6 +229,7 @@ def write_json(data, output_path):
 def save_output(data, output_path, has_diarize, output_format):
     import subprocess
     json_path = os.path.splitext(output_path)[0] + ".json"
+    os.makedirs(os.path.dirname(os.path.abspath(json_path)), exist_ok=True)
     size = write_json(data, json_path)
     log(f"[FILE] JSON: {json_path} ({size:,} bytes)")
 
@@ -355,7 +356,7 @@ def main():
 
             # finalize output_path now that we have the filename
             if not output_path:
-                base = os.path.splitext(probe_filename)[0]
+                base = os.path.splitext(os.path.basename(probe_filename))[0]
                 ext  = ".json" if output_format == "json" else ".txt"
                 output_path = os.path.join(os.getcwd(), base + "_transcript" + ext)
 

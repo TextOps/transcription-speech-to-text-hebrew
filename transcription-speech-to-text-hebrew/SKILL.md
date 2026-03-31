@@ -80,10 +80,13 @@ If the file exists:
 
 ## Step 2: Submit (Phase A)
 
+**Script location**: `scripts/transcribe.py` is in the same directory as this SKILL.md file.
+Use the directory containing this SKILL.md as `<skill_dir>` in all commands below — do not assume a working directory, as the skill may be installed anywhere.
+
 Run with `--submit-only` — uploads the file, submits the job, then **exits immediately** without waiting for results.
 
 ```bash
-python scripts/transcribe.py \
+python "<skill_dir>/scripts/transcribe.py" \
   --file "<path_or_url>" \
   --diarization <true|false> \
   --min-speakers <N> \
@@ -119,7 +122,7 @@ If missing: tell the user to get their key from https://text-ops-subs.com/api/ke
 Wait `first_check` seconds, then loop — run `--check-once` and act on the exit code:
 
 ```bash
-python scripts/transcribe.py \
+python "<skill_dir>/scripts/transcribe.py" \
   --job-id <job_id> \
   --check-once \
   --output-path <base_path> \
@@ -134,7 +137,7 @@ python scripts/transcribe.py \
 
 **Safety cap**: after 20 iterations without exit 0, tell the user and fall back to full-poll mode:
 ```bash
-python scripts/transcribe.py --job-id <job_id> --diarization <true|false> --output-path <base_path>
+python "<skill_dir>/scripts/transcribe.py" --job-id <job_id> --diarization <true|false> --output-path <base_path>
 ```
 
 ## Step 3.5: Convert existing JSON (optional)
@@ -142,7 +145,7 @@ python scripts/transcribe.py --job-id <job_id> --diarization <true|false> --outp
 If the user already has a JSON file from a previous transcription and wants to convert it:
 
 ```bash
-python scripts/json_to_text.py <file.json> [--output <file.txt>] [--diarization auto|true|false]
+python "<skill_dir>/scripts/json_to_text.py" <file.json> [--output <file.txt>] [--diarization auto|true|false]
 ```
 
 `--diarization auto` detects speaker info automatically from the data.
@@ -174,7 +177,7 @@ This usually means the API response had a different structure than expected.
 
 1. Re-run with JSON format to see the raw response:
    ```bash
-   python scripts/transcribe.py --job-id <JOB_ID> --output-format json
+   python "<skill_dir>/scripts/transcribe.py" --job-id <JOB_ID> --output-format json
    ```
 2. Open the JSON file and look for where the text segments actually are
 3. Check the structure: is it `result.segments` or `result.result.segments`?
@@ -188,7 +191,7 @@ The signed URL likely expired. Re-run from the beginning.
 If the process was interrupted or the output file was lost, you can recover using the Job ID that was printed during the run:
 
 ```bash
-python scripts/transcribe.py \
+python "<skill_dir>/scripts/transcribe.py" \
   --job-id <JOB_ID> \
   --diarization <true|false> \
   --output-format text
