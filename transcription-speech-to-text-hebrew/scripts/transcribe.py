@@ -27,15 +27,13 @@ SUBMIT_MODAL_URL = "https://text-ops-subs.com/api/v2/transcribe"
 CHECK_JOB_URL    = "https://text-ops-subs.com/api/v2/transcribe-status"
 PROBE_URL        = "https://text-ops-subs.com/api/v2/probe"
 
-SECS_PER_MIN     = 4      # 1 min of audio ≈ 4s processing
+SECS_PER_MIN     = 1.5    # 1 min of audio ≈ 1.5s processing (empirical)
 DIARIZATION_MULT = 1.6    # +60% for speaker separation
-POLL_INTERVAL    = 15     # seconds between polls (large files)
-POLL_INTERVAL_SMALL = 5   # seconds between polls for short files
+POLL_INTERVAL    = 5      # seconds between polls
 SMALL_FILE_MB    = 20     # threshold in MB (local files)
 SMALL_DURATION_SEC = 1200 # threshold in seconds = 20 min (URL files)
 MAX_FILE_MB      = 2048   # 2 GB upload limit
-MAX_POLLS_LARGE  = 60     # large files: 60 × 15s = 15 min max
-MAX_POLLS_SMALL  = 180    # small files: 180 × 5s = 15 min max
+MAX_POLLS        = 180    # 180 × 5s = 15 min max
 
 
 
@@ -147,7 +145,7 @@ def submit_job(download_url, has_diarization, word_timestamps=False, min_speaker
     return job_id
 
 
-def poll_job(job_id, initial_wait, poll_interval=POLL_INTERVAL, max_polls=MAX_POLLS_LARGE):
+def poll_job(job_id, initial_wait, poll_interval=POLL_INTERVAL, max_polls=MAX_POLLS):
     if initial_wait is not None:
         log(f"[WAIT] First check in {initial_wait:.0f}s (estimated processing time)")
         time.sleep(initial_wait)
@@ -378,16 +376,8 @@ def main():
 
         initial_wait = calc_initial_wait(duration_sec, has_diarize)
 
-        is_small = (
-            (not is_url and file_size_mb < SMALL_FILE_MB) or
-            (is_url and duration_sec is not None and duration_sec < SMALL_DURATION_SEC)
-        )
-        if is_small:
-            poll_interval = POLL_INTERVAL_SMALL
-            max_polls = MAX_POLLS_SMALL
-        else:
-            poll_interval = POLL_INTERVAL
-            max_polls = MAX_POLLS_LARGE
+        poll_interval = POLL_INTERVAL
+        max_polls     = MAX_POLLS
 
         job_id = submit_job(download_url, has_diarize, has_word_ts, min_speakers, max_speakers)
 
