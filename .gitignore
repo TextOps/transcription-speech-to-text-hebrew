@@ -5,3 +5,5 @@
 !.gitignore
 !transcription-speech-to-text-hebrew/
 !transcription-speech-to-text-hebrew/**
+!media-fixing-and-repair/
+!media-fixing-and-repair/**
