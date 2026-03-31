@@ -22,6 +22,9 @@ import re
 import subprocess
 import sys
 
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def log(msg):
     print(msg, flush=True)
@@ -88,6 +91,7 @@ def _run_download(url):
     cmd = [
         "yt-dlp",
         "-x",
+        "--format", "bestaudio",
         "--audio-format", "mp3",
         "--audio-quality", "0",
         "--no-playlist",

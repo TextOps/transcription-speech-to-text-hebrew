@@ -131,7 +131,7 @@ python "<skill_dir>/scripts/transcribe.py" \
 `--file` accepts both local file paths and HTTP/HTTPS URLs.
 `--min-speakers` / `--max-speakers` — only relevant when `--diarization true`. Default: min=1, max=10.
 
-**Hebrew filenames are fully supported.** If you see an encoding error (`cp1255`, `UnicodeDecodeError`), tell the user to run with `-X utf8` or set `PYTHONUTF8=1`.
+**Hebrew filenames are fully supported.**
 
 **Environment variable required**: `TEXTOPS_API_KEY`
 If missing: tell the user to get their key from https://text-ops-subs.com/api/keys, then set it (`set TEXTOPS_API_KEY=your_key` on Windows, `export TEXTOPS_API_KEY=your_key` on Mac/Linux).
