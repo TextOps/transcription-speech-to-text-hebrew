@@ -27,8 +27,8 @@ SUBMIT_MODAL_URL = "https://text-ops-subs.com/api/v2/transcribe"
 CHECK_JOB_URL    = "https://text-ops-subs.com/api/v2/transcribe-status"
 PROBE_URL        = "https://text-ops-subs.com/api/v2/probe"
 
-SECS_PER_MIN     = 1.5    # 1 min of audio ≈ 1.5s processing (empirical)
-DIARIZATION_MULT = 1.6    # +60% for speaker separation
+SECS_PER_MIN     = 0.83   # 1 min of audio ≈ 0.83s → 1h file: first check ~40s (no diarization)
+DIARIZATION_MULT = 2.25   # diarization ×2.25 → 1h file: first check ~90s
 POLL_INTERVAL    = 5      # seconds between polls
 SMALL_FILE_MB    = 20     # threshold in MB (local files)
 SMALL_DURATION_SEC = 1200 # threshold in seconds = 20 min (URL files)
