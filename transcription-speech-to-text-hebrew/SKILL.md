@@ -41,6 +41,31 @@ If the user didn't provide a file yet, ask for it. Once you have the file, ask *
 
 **Never ask about output format** — always `--output-format text`.
 
+## Step 2: Check before uploading
+
+Do these checks **in order** before running the script. Both cost nothing and leave no files on the user's machine.
+
+### Check A — Job ID already in this conversation
+
+Scan the current conversation for any `[JOB] ID: <id>` output from a previous run. If found:
+
+> "ראיתי שכבר שלחנו את הקובץ הזה לעיבוד בשיחה זו (Job ID: `abc123`).
+> אנסה לקבל את התוצאה — אם היא מוכנה נחסוך העלאה כפולה."
+
+Run with `--job-id <id>` to fetch the result. Only if that fails (job expired or not found) — continue to upload.
+
+### Check B — Transcript file already exists
+
+Check if `<basename>_transcript.txt` already exists next to the original file (local files only; skip for URLs).
+
+If the file exists:
+
+> "כבר קיים תמלול לקובץ זה: `<path>_transcript.txt`
+> רוצה שאשתמש בו, או לתמלל מחדש?"
+
+- **Use existing** → go to Step 4 directly with the existing file
+- **Re-transcribe** → continue below
+
 ## Step 2: Run the transcription script
 
 Use `scripts/transcribe.py` (relative to this skill directory).
@@ -74,22 +99,24 @@ If missing: tell the user to get their key from https://text-ops-subs.com/api/ke
 
 ## Step 3: Monitor the process
 
-The script uses consistent `[TAG]` prefixes — scan for these while it runs:
+The script uses consistent `[TAG]` prefixes. **Send the user a message immediately when you see each stage transition** — do not wait for the script to finish.
 
-| Line you'll see | What to tell the user |
+| Line you'll see | What to tell the user immediately |
 |---|---|
-| `[PROBE] OK \| ...` | Tell user: file is accessible, continuing |
-| `[UPLOAD] Uploading: file.mp4 (X MB)...` | Tell user: uploading file (X MB)... |
-| `[UPLOAD] Complete: file.mp4` | Tell user: upload done, sending for processing |
-| `[JOB] ID: abc123` | Tell user: processing started (Job ID: abc123) |
-| `[WAIT] First check in Xs` | Tell user: waiting for result... |
-| `[PROGRESS] 45% (30s elapsed)` | Tell user: transcribing... 45% |
-| `[PROGRESS] 75% (55s elapsed)` | Tell user: almost done... 75% |
+| `[PROBE] OK \| ...` | "הקובץ נגיש, מתחיל העלאה..." |
+| `[UPLOAD] Uploading: file.mp4 (X MB)...` | "מעלה קובץ (X MB)..." |
+| `[UPLOAD] Complete: file.mp4` | "העלאה הסתיימה, שולח לעיבוד..." |
+| `[JOB] ID: abc123` | **"עיבוד התחיל! Job ID: abc123 — שמור את זה למקרה שתצטרך לשחזר"** |
+| `[WAIT] First check in Xs` | "ממתין לתוצאה..." |
+| `[PROGRESS] 45% (30s elapsed)` | "מתמלל... 45%" |
+| `[PROGRESS] 75% (55s elapsed)` | "כמעט סיים... 75%" |
 | `[DONE] Processing complete (Xs total)` | Proceed to Step 4 |
 | `ERROR: ...` | Go to Troubleshooting |
 | `WARNING: Timeout...` | Use `--job-id` to resume |
 
-**עדכן את המשתמש בכל מעבר שלב** — כלומר: כשמתחילה העלאה, כשהיא מסתיימת, כשהעבודה נשלחת, וכשהתמלול מתקדם. לגבי `[PROGRESS]`: עדכן בקפיצות של ~25% בלבד, לא כל שורה.
+**חשוב במיוחד**: ברגע שאתה רואה `[JOB] ID: ...` — שלח מיד הודעה למשתמש עם ה-Job ID. זה מאפשר לו לדעת שהעבודה נשלחה בהצלחה ושיש לו Job ID לשחזור.
+
+לגבי `[PROGRESS]`: עדכן בקפיצות של ~25% בלבד, לא כל שורה.
 
 ## Step 3.5: Convert existing JSON (optional)
 
