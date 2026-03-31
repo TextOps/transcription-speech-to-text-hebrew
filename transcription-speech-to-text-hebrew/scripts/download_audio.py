@@ -1,18 +1,18 @@
 """
-YouTube audio downloader for the TextOps transcription skill.
+Downloads audio from a YouTube URL for the TextOps transcription skill.
 
 Usage:
-  python youtube_download.py <youtube_url>
+  python download_audio.py <youtube_url>
 
-Downloads audio-only (mp3) to the current working directory.
+Extracts audio-only (mp3) to the current working directory.
 Installs / updates yt-dlp automatically if needed.
 Exits 0 on success, 1 on failure.
 
 Output tags (mirrors transcribe.py style):
   [YTDLP] Installing...
   [YTDLP] Ready (version X.Y.Z)
-  [DOWNLOAD] Fetching audio...
-  [DOWNLOAD] Updating yt-dlp and retrying...
+  [AUDIO] Fetching audio...
+  [AUDIO] Updating yt-dlp and retrying...
   [FILE] /absolute/path/to/Title.mp3
   ERROR: <message>
 """
@@ -108,11 +108,11 @@ def _run_download(url):
 
 
 def download(url):
-    log("[DOWNLOAD] Fetching audio...")
+    log("[AUDIO] Fetching audio...")
     ok, output, path = _run_download(url)
 
     if not ok:
-        log("[DOWNLOAD] Updating yt-dlp and retrying...")
+        log("[AUDIO] Updating yt-dlp and retrying...")
         _install_yt_dlp(upgrade=True)
         ok, output, path = _run_download(url)
 
@@ -137,7 +137,7 @@ def download(url):
 
 def main():
     if len(sys.argv) < 2:
-        log("Usage: python youtube_download.py <youtube_url>")
+        log("Usage: python download_audio.py <youtube_url>")
         sys.exit(1)
 
     url = sys.argv[1]
