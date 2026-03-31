@@ -78,9 +78,9 @@ If the file exists:
 - **Use existing** → go to Step 4 directly with the existing file
 - **Re-transcribe** → continue below
 
-## Step 2: Run the transcription script
+## Step 2: Submit (Phase A)
 
-Use `scripts/transcribe.py` (relative to this skill directory).
+Run with `--submit-only` — uploads the file, submits the job, then **exits immediately** without waiting for results.
 
 ```bash
 python scripts/transcribe.py \
@@ -88,47 +88,54 @@ python scripts/transcribe.py \
   --diarization <true|false> \
   --min-speakers <N> \
   --max-speakers <N> \
-  --output-format text
+  --submit-only
 ```
 
 `--file` accepts both local file paths and HTTP/HTTPS URLs.
 `--min-speakers` / `--max-speakers` — only relevant when `--diarization true`. Default: min=1, max=10.
-`--output-format text` — always use this. The script always saves **both** a `.json` and a `.txt`, regardless of this flag.
 
-**Hebrew filenames and content are fully supported.** File names, paths, and transcription content may contain Hebrew characters — the scripts use UTF-8 throughout. If you see an encoding error (`cp1255`, `cp1252`, `UnicodeDecodeError`), it means the terminal or a subprocess is not using UTF-8. This is a system configuration issue, not a script bug — tell the user to run Python with `-X utf8` or set `PYTHONUTF8=1`.
-
-**Output filenames** (set automatically, no need to specify):
-- Local file: `<basename>_transcript.json` + `<basename>_transcript.txt` — saved next to the original file
-- URL: `<filename-from-server>_transcript.json` + `<filename-from-server>_transcript.txt` — saved in the current directory
-
-**For URLs**, the script automatically calls `probe_url` first (a Cloud Function that checks if the file is publicly accessible and what its duration is). You don't need to call it manually — but you need to understand what it checks so you can explain errors to the user:
-- `ERROR: URL is not publicly accessible` → the file requires login/permissions. If it's Google Drive, tell the user to set sharing to "Anyone with the link".
-- `ERROR: File format is not supported` → the extension isn't transcribable (e.g. `.docx`, `.zip`).
-- `OK | source: gdrive | file: meeting.mp4, 45.3 MB, 342s` → probe passed, script continues.
+**Hebrew filenames are fully supported.** If you see an encoding error (`cp1255`, `UnicodeDecodeError`), tell the user to run with `-X utf8` or set `PYTHONUTF8=1`.
 
 **Environment variable required**: `TEXTOPS_API_KEY`
 If missing: tell the user to get their key from https://text-ops-subs.com/api/keys, then set it (`set TEXTOPS_API_KEY=your_key` on Windows, `export TEXTOPS_API_KEY=your_key` on Mac/Linux).
 
-## Step 3: Monitor the process
+**For URLs**, the script probes accessibility first:
+- `ERROR: URL is not publicly accessible` → If Google Drive, set sharing to "Anyone with the link".
+- `ERROR: File format is not supported` → unsupported extension (e.g. `.docx`).
 
-The script uses consistent `[TAG]` prefixes. **Send the user a message immediately when you see each stage transition** — do not wait for the script to finish.
+**Read these values from the output and save them** — you'll need them in Phase B:
 
-| Line you'll see | What to tell the user immediately |
+| Tag | What to save |
 |---|---|
-| `[PROBE] OK \| ...` | "הקובץ נגיש, מתחיל העלאה..." |
-| `[UPLOAD] Uploading: file.mp4 (X MB)...` | "מעלה קובץ (X MB)..." |
-| `[UPLOAD] Complete: file.mp4` | "העלאה הסתיימה, שולח לעיבוד..." |
-| `[JOB] ID: abc123` | **"עיבוד התחיל! Job ID: abc123 — שמור את זה למקרה שתצטרך לשחזר"** |
-| `[WAIT] First check in Xs` | "ממתין לתוצאה..." |
-| `[PROGRESS] 45% (30s elapsed)` | "מתמלל... 45%" |
-| `[PROGRESS] 75% (55s elapsed)` | "כמעט סיים... 75%" |
-| `[DONE] Processing complete (Xs total)` | Proceed to Step 4 |
-| `ERROR: ...` | Go to Troubleshooting |
-| `WARNING: Timeout...` | Use `--job-id` to resume |
+| `[PROBE] OK \| ...` | Tell user: "הקובץ נגיש, מעלה..." |
+| `[UPLOAD] Uploading: file.mp4 (X MB)...` | Tell user: "מעלה קובץ (X MB)..." |
+| `[UPLOAD] Complete` | Tell user: "העלאה הסתיימה, שולח לעיבוד..." |
+| `[JOB] ID: abc123` | **Save job_id. Tell user: "עיבוד התחיל! Job ID: `abc123`"** |
+| `[OUTPUT] /path/to/base` | **Save base_path (no extension)** |
+| `[TIMING] first_check=36s poll_interval=15s estimated_total=45s` | **Save these three values** |
 
-**חשוב במיוחד**: ברגע שאתה רואה `[JOB] ID: ...` — שלח מיד הודעה למשתמש עם ה-Job ID. זה מאפשר לו לדעת שהעבודה נשלחה בהצלחה ושיש לו Job ID לשחזור.
+## Step 3: Poll for result (Phase B)
 
-לגבי `[PROGRESS]`: עדכן בקפיצות של ~25% בלבד, לא כל שורה.
+Wait `first_check` seconds, then loop — run `--check-once` and act on the exit code:
+
+```bash
+python scripts/transcribe.py \
+  --job-id <job_id> \
+  --check-once \
+  --output-path <base_path> \
+  --diarization <true|false>
+```
+
+| Exit code | Output line | What to do |
+|---|---|---|
+| `0` | `[DONE] ...` + `[FILE] ...` | Proceed to Step 4 |
+| `3` | `[STATUS] processing X%` | Tell user: "מתמלל... X%", wait `poll_interval` seconds, repeat |
+| `1` | `ERROR: ...` | Go to Troubleshooting |
+
+**Safety cap**: after 20 iterations without exit 0, tell the user and fall back to full-poll mode:
+```bash
+python scripts/transcribe.py --job-id <job_id> --diarization <true|false> --output-path <base_path>
+```
 
 ## Step 3.5: Convert existing JSON (optional)
 

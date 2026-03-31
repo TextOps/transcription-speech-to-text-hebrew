@@ -226,6 +226,28 @@ def write_json(data, output_path):
     return size
 
 
+# ── output writer (shared by full-poll and --check-once paths) ────────────────
+
+def save_output(data, output_path, has_diarize, output_format):
+    import subprocess
+    json_path = os.path.splitext(output_path)[0] + ".json"
+    size = write_json(data, json_path)
+    log(f"[FILE] JSON: {json_path} ({size:,} bytes)")
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    txt_path = os.path.splitext(output_path)[0] + ".txt"
+    result = subprocess.run(
+        [sys.executable, os.path.join(script_dir, "json_to_text.py"),
+         json_path, "--output", txt_path,
+         "--diarization", "true" if has_diarize else "false"],
+        capture_output=True, text=True, encoding="utf-8"
+    )
+    if result.stdout:
+        log(result.stdout.strip())
+    if result.returncode != 0 and result.stderr:
+        log(f"WARNING: {result.stderr.strip()}")
+
+
 # ── main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -245,6 +267,10 @@ def main():
                         choices=["json", "text"], help="Output format")
     parser.add_argument("--output-path", default=None,
                         help="Where to save the result (optional)")
+    parser.add_argument("--submit-only", action="store_true",
+                        help="Upload and submit, print Job ID + timing hints, exit immediately (no polling)")
+    parser.add_argument("--check-once", action="store_true",
+                        help="With --job-id: poll once. Exit 0=done (files saved), 3=still processing, 1=error")
     args = parser.parse_args()
 
     if not API_KEY:
@@ -281,8 +307,27 @@ def main():
         ext  = ".json" if output_format == "json" else ".txt"
         output_path = base + "_transcript" + ext
 
-    # ── resume from existing job ID ───────────────────────────────────────────
+    # ── resume / check-once from existing job ID ─────────────────────────────
     if args.job_id:
+        if args.check_once:
+            # Single poll — no sleep, exit immediately with status code
+            res = requests.post(CHECK_JOB_URL,
+                                json={"textopsJobId": args.job_id},
+                                headers={"textops-api-key": API_KEY})
+            res.raise_for_status()
+            data = res.json()
+            if data.get("has_error"):
+                log(f"ERROR: Processing failed: {data.get('user_messages') or data.get('status', '?')}")
+                sys.exit(1)
+            has_segments = bool(data.get("result", {}).get("segments"))
+            if data.get("status") == "done" or has_segments:
+                log(f"[DONE] Processing complete ({elapsed()}s total)")
+                save_output(data, output_path, has_diarize, output_format)
+                sys.exit(0)
+            progress = data.get("progress", 0)
+            log(f"[STATUS] processing {progress}%")
+            sys.exit(3)
+
         log(f"[JOB] Resuming with existing Job ID: {args.job_id}")
         data = poll_job(args.job_id, initial_wait=None)
     else:
@@ -345,27 +390,18 @@ def main():
             max_polls = MAX_POLLS_LARGE
 
         job_id = submit_job(download_url, has_diarize, has_word_ts, min_speakers, max_speakers)
+
+        if args.submit_only:
+            base_path = os.path.splitext(output_path)[0] if output_path else os.path.join(os.getcwd(), job_id + "_transcript")
+            log(f"[OUTPUT] {base_path}")
+            first_check  = int(initial_wait) if initial_wait else 10
+            est_total    = int(initial_wait / 0.8) if initial_wait else "unknown"
+            log(f"[TIMING] first_check={first_check}s poll_interval={poll_interval}s estimated_total={est_total}s")
+            sys.exit(0)
+
         data   = poll_job(job_id, initial_wait, poll_interval, max_polls)
 
-    # ── always save JSON first ────────────────────────────────────────────────
-    json_path = os.path.splitext(output_path)[0] + ".json"
-    size = write_json(data, json_path)
-    log(f"[FILE] JSON: {json_path} ({size:,} bytes)")
-
-    # ── always convert to text as well ───────────────────────────────────────
-    import subprocess
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    txt_path = os.path.splitext(output_path)[0] + ".txt"
-    result = subprocess.run(
-        [sys.executable, os.path.join(script_dir, "json_to_text.py"),
-         json_path, "--output", txt_path,
-         "--diarization", "true" if has_diarize else "false"],
-        capture_output=True, text=True, encoding="utf-8"
-    )
-    if result.stdout:
-        log(result.stdout.strip())
-    if result.returncode != 0 and result.stderr:
-        log(f"WARNING: {result.stderr.strip()}")
+    save_output(data, output_path, has_diarize, output_format)
 
 
 if __name__ == "__main__":
