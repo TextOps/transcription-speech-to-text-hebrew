@@ -13,8 +13,11 @@ import sys
 import time
 import requests
 
-sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 # ── API config ───────────────────────────────────────────────────────────────
 
@@ -41,7 +44,10 @@ _start_time = None
 
 def log(msg):
     """Print with immediate flush so output streams in real time."""
-    print(msg, flush=True)
+    try:
+        print(msg, flush=True)
+    except UnicodeEncodeError:
+        print(msg.encode("utf-8", errors="replace").decode("utf-8"), flush=True)
 
 def elapsed():
     """Seconds elapsed since script start, as integer."""

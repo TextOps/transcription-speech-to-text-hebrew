@@ -53,7 +53,8 @@ Ask **one question**:
 **Skip the question if the user already answered:**
 - "דובר אחד", "one speaker", "no diarization" → diarization = false
 - "שני דוברים", "two speakers", "with speakers" → diarization = true, min=2 max=2
-- "timestamps פר מילה", "word level", "כתוביות מדויקות" → `--word-timestamps true` (slower, no diarization)
+- "timestamps פר מילה", "word level", "כתוביות מדויקות" → `--word-timestamps true` (slower)
+- Combined timestamps + speakers → `--word-timestamps true --diarization true`
 - File attached/linked with "תמלל את זה" and no speaker info → ask only about speakers
 
 **Never ask about output format** — always `--output-format text`.
