@@ -48,13 +48,13 @@ Ask **one question**:
 > "יש יותר מדובר אחד בהקלטה? (הפרדת דוברים לוקחת קצת יותר זמן)"
 
 - **No / דובר אחד** → `--diarization false`
-- **Yes / כן** → ask how many: exact number → `--min-speakers N --max-speakers N`; range "3–4" → min=3 max=4; unknown → leave defaults (min=1 max=10)
+- **Yes / כן** → `--diarization true --min-speakers 2 --max-speakers 2` (never ask how many — always use 2)
 
 **Skip the question if the user already answered:**
 - "דובר אחד", "one speaker", "no diarization" → diarization = false
 - "שני דוברים", "two speakers", "with speakers" → diarization = true, min=2 max=2
 - "timestamps פר מילה", "word level", "כתוביות מדויקות" → `--word-timestamps true` (slower)
-- Combined timestamps + speakers → `--word-timestamps true --diarization true`
+- Combined timestamps + speakers → `--word-timestamps true --diarization true --min-speakers 2 --max-speakers 2`
 - File attached/linked with "תמלל את זה" and no speaker info → ask only about speakers
 
 **Never ask about output format** — always `--output-format text`.
