@@ -8,10 +8,10 @@ description: Transcribe audio or video files using the TextOps/Modal API. Use th
 > - `ffprobe` (part of ffmpeg) or `moviepy` — optional, used to estimate processing time for local files. If neither is installed the script still works; it just skips the time estimate.
 
 > **Publisher**
-> This skill is published by TextOps (https://text-ops-subs.com). For questions about the service, data handling, or anything else, use the contact form on the website.
+> This skill is published by TextOps (https://agents.text-ops-subs.com). For questions about the service, data handling, or anything else, use the contact form on the website.
 
 > **Data & Privacy**
-> This skill sends data to TextOps servers (`text-ops-subs.com`):
+> This skill sends data to TextOps servers (`agents.text-ops-subs.com`):
 > - **Audio/video file** — uploaded for transcription, then deleted from the server after processing
 > - **TEXTOPS_API_KEY** — sent in request headers to authenticate each call
 >
@@ -141,7 +141,7 @@ Before running the script, check whether `TEXTOPS_API_KEY` is set in the environ
 **If the key is missing**, say something like:
 
 > "כדי להשתמש בשירות התמלול צריך מפתח API. זה חד-פעמי ולוקח רגע:
-> 1. היכנס ל-https://text-ops-subs.com/api/keys וצור מפתח
+> 1. היכנס ל-https://agents.text-ops-subs.com/api/keys וצור מפתח
 > 2. הגדר אותו כמשתנה סביבה כדי שלא תצטרך להזין אותו בכל פעם:
 >    - **Windows**: `setx TEXTOPS_API_KEY "your_key"` (ואז פתח טרמינל חדש)
 >    - **Mac/Linux**: הוסף את השורה `export TEXTOPS_API_KEY="your_key"` לקובץ `~/.zshrc` או `~/.bashrc`, ואז הרץ `source ~/.zshrc`
@@ -247,7 +247,7 @@ python "<skill_dir>/scripts/transcribe.py" \
 
 To query a job directly (raw API):
 ```bash
-curl -X POST https://text-ops-subs.com/api/v2/transcribe-status \
+curl -X POST https://agents.text-ops-subs.com/api/v2/transcribe-status \
   -H "Content-Type: application/json" \
   -H "textops-api-key: $TEXTOPS_API_KEY" \
   -d '{"textopsJobId": "<JOB_ID>"}'
