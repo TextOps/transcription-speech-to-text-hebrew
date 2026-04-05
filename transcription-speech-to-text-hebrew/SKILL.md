@@ -135,7 +135,20 @@ python "<skill_dir>/scripts/transcribe.py" \
 **Hebrew filenames are fully supported.**
 
 **Environment variable required**: `TEXTOPS_API_KEY`
-If missing: tell the user to get their key from https://text-ops-subs.com/api/keys, then set it (`set TEXTOPS_API_KEY=your_key` on Windows, `export TEXTOPS_API_KEY=your_key` on Mac/Linux).
+
+Before running the script, check whether `TEXTOPS_API_KEY` is set in the environment.
+
+**If the key is missing**, say something like:
+
+> "כדי להשתמש בשירות התמלול צריך מפתח API. זה חד-פעמי ולוקח רגע:
+> 1. היכנס ל-https://text-ops-subs.com/api/keys וצור מפתח
+> 2. הגדר אותו כמשתנה סביבה כדי שלא תצטרך להזין אותו בכל פעם:
+>    - **Windows**: `setx TEXTOPS_API_KEY "your_key"` (ואז פתח טרמינל חדש)
+>    - **Mac/Linux**: הוסף את השורה `export TEXTOPS_API_KEY="your_key"` לקובץ `~/.zshrc` או `~/.bashrc`, ואז הרץ `source ~/.zshrc`
+>
+> ברגע שתגדיר אותו — לא תצטרך לגעת בזה יותר."
+
+Wait for the user to confirm before continuing.
 
 **For URLs**, the script probes accessibility first:
 - `ERROR: URL is not publicly accessible` → If Google Drive, set sharing to "Anyone with the link".
