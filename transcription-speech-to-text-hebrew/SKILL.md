@@ -141,7 +141,7 @@ Before running the script, check whether `TEXTOPS_API_KEY` is set in the environ
 **If the key is missing**, say something like:
 
 > "כדי להשתמש בשירות התמלול צריך מפתח API. זה חד-פעמי ולוקח רגע:
-> 1. היכנס ל-https://agents.text-ops-subs.com/api/keys וצור מפתח
+> 1. היכנס ל-https://agents.text-ops-subs.com/ וצור מפתח
 > 2. הגדר אותו כמשתנה סביבה כדי שלא תצטרך להזין אותו בכל פעם:
 >    - **Windows**: `setx TEXTOPS_API_KEY "your_key"` (ואז פתח טרמינל חדש)
 >    - **Mac/Linux**: הוסף את השורה `export TEXTOPS_API_KEY="your_key"` לקובץ `~/.zshrc` או `~/.bashrc`, ואז הרץ `source ~/.zshrc`
