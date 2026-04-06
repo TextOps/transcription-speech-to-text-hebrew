@@ -9,3 +9,5 @@
 !media-fixing-and-repair/**
 !scripts/
 !scripts/**
+!media-files-conversion-ffmpeg/
+!media-files-conversion-ffmpeg/**
