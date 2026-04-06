@@ -260,8 +260,8 @@ def main():
     parser.add_argument("--file", default=None, help="Local file path or URL")
     parser.add_argument("--job-id", default=None,
                         help="Resume from existing Job ID (skip upload/submit)")
-    parser.add_argument("--diarization", default="false",
-                        help="Enable speaker separation: true/false")
+    parser.add_argument("--diarization", default="auto",
+                        help="Enable speaker separation: true / false / auto (default: auto — server detects)")
     parser.add_argument("--min-speakers", type=int, default=1,
                         help="Minimum number of speakers (used with diarization)")
     parser.add_argument("--max-speakers", type=int, default=10,
@@ -292,7 +292,13 @@ def main():
     global _start_time
     _start_time = time.time()
 
-    has_diarize      = args.diarization.lower() in ("true", "1", "yes")
+    _diar = args.diarization.lower()
+    if _diar in ("true", "1", "yes"):
+        has_diarize = True
+    elif _diar in ("false", "0", "no"):
+        has_diarize = False
+    else:
+        has_diarize = None   # auto — sends null to API → server auto-detects speakers
     has_word_ts      = args.word_timestamps.lower() in ("true", "1", "yes")
     min_speakers     = args.min_speakers
     max_speakers     = args.max_speakers
@@ -327,6 +333,9 @@ def main():
             has_segments = bool(data.get("result", {}).get("segments"))
             if data.get("status") == "done" or has_segments:
                 log(f"[DONE] Processing complete ({elapsed()}s total)")
+                if has_diarize is None:
+                    _speakers = set(s.get("speaker", "") for s in extract_segments(data) if s.get("speaker"))
+                    has_diarize = len(_speakers) > 1
                 save_output(data, output_path, has_diarize, output_format)
                 sys.exit(0)
             progress = data.get("progress", 0)
@@ -335,6 +344,9 @@ def main():
 
         log(f"[JOB] Resuming with existing Job ID: {args.job_id}")
         data = poll_job(args.job_id, initial_wait=None)
+        if has_diarize is None:
+            _speakers = set(s.get("speaker", "") for s in extract_segments(data) if s.get("speaker"))
+            has_diarize = len(_speakers) > 1
     else:
         file_arg = args.file
         is_url   = file_arg.startswith("http://") or file_arg.startswith("https://")
@@ -397,6 +409,9 @@ def main():
             sys.exit(0)
 
         data   = poll_job(job_id, initial_wait, poll_interval, max_polls)
+        if has_diarize is None:
+            _speakers = set(s.get("speaker", "") for s in extract_segments(data) if s.get("speaker"))
+            has_diarize = len(_speakers) > 1
 
     save_output(data, output_path, has_diarize, output_format)
 
