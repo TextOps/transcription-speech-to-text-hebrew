@@ -49,21 +49,18 @@ Rules that apply throughout this skill:
 
 If the user didn't provide a file yet, ask for it. Once you have the file:
 
-- If the URL contains `youtube.com` or `youtu.be` → go to **Step 1.5** first, then ask about speakers.
+- If the URL contains `youtube.com` or `youtu.be` → go to **Step 1.5** first.
 
-Ask **one question**:
+**Don't ask about speakers** — infer from context:
 
-> "יש יותר מדובר אחד בהקלטה? (הפרדת דוברים לוקחת קצת יותר זמן)"
+- If the filename, title, or user description strongly suggests a single speaker
+  (e.g. "הרצאה", "lecture", "monologue", "speech", "שיעור", "דרשה",
+  or user says "דובר אחד" / "רק אני" / "single speaker") → `--diarization false`
+- If user explicitly states a count (e.g. "יש 3 דוברים") → `--max-speakers 3`
+- Otherwise → omit diarization flags entirely (API auto-detects, up to 5 speakers)
 
-- **No / דובר אחד** → `--diarization false`
-- **Yes / כן** → `--diarization true --min-speakers 2 --max-speakers 2` (never ask how many — always use 2)
-
-**Skip the question if the user already answered:**
-- "דובר אחד", "one speaker", "no diarization" → diarization = false
-- "שני דוברים", "two speakers", "with speakers" → diarization = true, min=2 max=2
+**Other flags:**
 - "timestamps פר מילה", "word level", "כתוביות מדויקות" → `--word-timestamps true` (slower)
-- Combined timestamps + speakers → `--word-timestamps true --diarization true --min-speakers 2 --max-speakers 2`
-- File attached/linked with "תמלל את זה" and no speaker info → ask only about speakers
 
 **Never ask about output format** — always `--output-format text`.
 
@@ -131,14 +128,14 @@ Run with `--submit-only` — uploads the file, submits the job, then **exits imm
 ```bash
 python "<skill_dir>/scripts/transcribe.py" \
   --file "<path_or_url>" \
-  --diarization <true|false> \
-  --min-speakers <N> \
-  --max-speakers <N> \
+  [--diarization false] \
+  [--max-speakers N] \
   --submit-only
 ```
 
 `--file` accepts both local file paths and HTTP/HTTPS URLs.
-`--min-speakers` / `--max-speakers` — only relevant when `--diarization true`. Default: min=1, max=10.
+`--diarization false` — only when single speaker was inferred (see Step 1).
+`--max-speakers N` — only when user explicitly stated a speaker count.
 
 **Hebrew filenames are fully supported.**
 
@@ -276,5 +273,7 @@ Run with `--job-id` to re-fetch and inspect the raw `.json` output for where the
 ## Notes
 
 - The API handles Hebrew and other languages automatically
-- Diarization adds ~60% more processing time
+- Speaker detection is automatic — no need to specify speaker count
+- If you know it's a single speaker, say so — it skips speaker detection entirely and is faster
+- To cap the speaker search, pass --max-speakers N (default: up to 5)
 - The Job ID is printed at submission — save it in case you need to recover
