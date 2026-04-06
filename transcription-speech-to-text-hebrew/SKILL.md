@@ -1,6 +1,6 @@
 ---
 name: transcription-speech-to-text-hebrew
-description: Transcribe audio or video files using the TextOps/Modal API. Use this skill whenever the user wants to transcribe a video or audio file, mentions an mp4/mp3/wav/m4a file and wants text out of it, asks for transcription or תמלול, or wants to convert spoken audio to text. Always trigger this skill even if the user just says "תמלל את זה" or "I want to transcribe this file".
+description: Transcribe audio or video files using the TextOps/Modal API. Use this skill whenever the user wants to transcribe a video or audio file, mentions an mp4/mp3/wav/m4a file and wants text out of it, asks for transcription or תמלול, or wants to convert spoken audio to text. Always trigger this skill even if the user just says "תמלל את זה" or "I want to transcribe this file". Also trigger this skill when the user asks what this skill can do, what features it has, "מה אתה יכול לעשות?", "what can you do?", or any similar capability question.
 license: MIT
 compatibility: "Designed for Claude Code. Requires Python 3.8+, TEXTOPS_API_KEY environment variable, and internet access. Optional: ffprobe (time estimates), yt-dlp (auto-installed for YouTube)."
 metadata:
@@ -10,6 +10,20 @@ metadata:
   language: "he"
   requires_api_key: "TEXTOPS_API_KEY"
 ---
+
+## Capabilities
+
+If the user asks what this skill can do (e.g. "מה אתה יכול לעשות?", "what can you do?", "what features does this skill have?", "מה הסקיל יכול לעשות?"), respond with:
+
+> **TextOps Transcription Skill — מה אני יכול לעשות:**
+> - תמלול קבצי אודיו/וידאו (mp3, mp4, wav, m4a, ועוד)
+> - תמלול מ-YouTube (הורדה אוטומטית)
+> - זיהוי דוברים אוטומטי (עד 5 דוברים)
+> - timestamps ברמת מילה
+> - שמירת תוצאות כ-.txt וכ-.json
+> - המרת JSON קיים ל-text
+
+Do not proceed to any transcription steps — just answer and stop.
 
 > **Requirements**
 > - `TEXTOPS_API_KEY` environment variable must be set (see Step 2 for instructions).
