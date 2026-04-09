@@ -4,7 +4,7 @@ description: Summarize Hebrew tech lectures and meetings from transcription file
 license: MIT
 compatibility: "Designed for Claude Code. No external dependencies required."
 metadata:
-  version: "1.0.3"
+  version: "1.0.4"
   author: "TextOps"
   tags: "summary, lecture, hebrew, meeting-notes, transcription"
   language: "he"
