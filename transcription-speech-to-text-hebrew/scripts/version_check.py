@@ -17,8 +17,8 @@ import json
 import urllib.request
 
 GITHUB_VERSION_URL = (
-    "https://raw.githubusercontent.com/textops/"
-    "transcription-speech-to-text-hebrew/main/version.json"
+    "https://raw.githubusercontent.com/TextOps/"
+    "textops-skills/main/transcription-speech-to-text-hebrew/version.json"
 )
 TIMEOUT = 5
 
