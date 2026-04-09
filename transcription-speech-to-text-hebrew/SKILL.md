@@ -4,7 +4,7 @@ description: Transcribe audio or video files using the TextOps/Modal API. Use th
 license: MIT
 compatibility: "Designed for Claude Code. Requires Python 3.8+, TEXTOPS_API_KEY environment variable, and internet access. Optional: ffprobe (time estimates), yt-dlp (auto-installed for YouTube)."
 metadata:
-  version: "1.0.16"
+  version: "1.0.17"
   author: "TextOps"
   tags: "transcription, speech-to-text, audio, video, hebrew, diarization, youtube"
   language: "he"
@@ -111,6 +111,10 @@ If the user didn't provide a file yet, ask for it. Once you have the file:
 - If user explicitly states a count (e.g. "יש 3 דוברים") → `--max-speakers 3`
 - Otherwise → omit diarization flags entirely (API auto-detects, up to 5 speakers)
 
+**Language:**
+- Default: assume Hebrew — do **not** add any language flag.
+- If the user says the audio is in a non-Hebrew language (e.g. "זה באנגלית", "it's in English", "not Hebrew") → add `--is-hebrew false`
+
 **Other flags:**
 - "timestamps פר מילה", "word level", "כתוביות מדויקות" → `--word-timestamps true` (slower)
 
@@ -182,12 +186,14 @@ python "<skill_dir>/scripts/transcribe.py" \
   --file "<path_or_url>" \
   [--diarization false] \
   [--max-speakers N] \
+  [--is-hebrew false] \
   --submit-only
 ```
 
 `--file` accepts both local file paths and HTTP/HTTPS URLs.
 `--diarization false` — only when single speaker was inferred (see Step 1).
 `--max-speakers N` — only when user explicitly stated a speaker count.
+`--is-hebrew false` — only when user indicated the audio is not in Hebrew (see Step 1).
 
 **Hebrew filenames are fully supported.**
 
@@ -207,7 +213,7 @@ Before running the script, check whether `TEXTOPS_API_KEY` is set in the environ
 
 Wait for the user to confirm before continuing.
 
-**For URLs**, the script probes accessibility first:
+**Possible errors from the server when submitting a URL:**
 - `ERROR: URL is not publicly accessible` → If Google Drive, set sharing to "Anyone with the link".
 - `ERROR: File format is not supported` → unsupported extension (e.g. `.docx`).
 
@@ -215,7 +221,6 @@ Wait for the user to confirm before continuing.
 
 | Tag | What to save |
 |---|---|
-| `[PROBE] OK \| ...` | Tell user: "הקובץ נגיש, מעלה..." |
 | `[UPLOAD] Uploading: file.mp4 (X MB)...` | Tell user: "מעלה קובץ (X MB)..." |
 | `[UPLOAD] Complete` | Tell user: "העלאה הסתיימה, שולח לעיבוד..." |
 | `[JOB] ID: abc123` | **Save job_id. Tell user: "עיבוד התחיל! Job ID: `abc123`"** |

@@ -28,7 +28,6 @@ API_KEY = os.environ.get("TEXTOPS_API_KEY", "")
 GET_UPLOAD_URL   = "https://text-ops-subs.com/api/v2/upload-url"
 SUBMIT_MODAL_URL = "https://text-ops-subs.com/api/v2/transcribe"
 CHECK_JOB_URL    = "https://text-ops-subs.com/api/v2/transcribe-status"
-PROBE_URL        = "https://text-ops-subs.com/api/v2/probe"
 
 SECS_PER_MIN     = 0.83   # 1 min of audio ≈ 0.83s → 1h file: first check ~40s (no diarization)
 DIARIZATION_MULT = 2.25   # diarization ×2.25 → 1h file: first check ~90s
@@ -99,16 +98,6 @@ def calc_initial_wait(duration_sec, has_diarization):
     return wait * 0.8  # start checking 20% before estimated finish
 
 
-# ── probe URL ────────────────────────────────────────────────────────────────
-
-def probe_url(url):
-    """Check accessibility and metadata of a remote audio/video URL."""
-    res = requests.post(PROBE_URL, json={"url": url},
-                        headers={"textops-api-key": API_KEY})
-    res.raise_for_status()
-    return res.json()
-
-
 # ── upload (for local files) ─────────────────────────────────────────────────
 
 def get_signed_urls(filename):
@@ -133,17 +122,31 @@ def upload_file(upload_url, file_path, filename):
 
 # ── submit + poll ─────────────────────────────────────────────────────────────
 
-def submit_job(download_url, has_diarization, word_timestamps=False, min_speakers=1, max_speakers=10):
+def submit_job(download_url, has_diarization, word_timestamps=False, min_speakers=1, max_speakers=10, is_hebrew=True):
     params = {
         "enable_diarization": has_diarization,
         "min_speakers": min_speakers,
         "max_speakers": max_speakers,
         "word_timestamps": word_timestamps,
+        "is_hebrew": is_hebrew,
     }
     log("[JOB] Submitting...")
     res = requests.post(SUBMIT_MODAL_URL,
                         json={"download_url": download_url, "params": params},
                         headers={"textops-api-key": API_KEY})
+    if res.status_code == 400:
+        body = res.json() if res.content else {}
+        err  = body.get("error", "Bad request")
+        details = body.get("details", "")
+        if "not accessible" in err:
+            log(f"ERROR: URL is not publicly accessible. {details}".strip())
+            log("  If this is a Google Drive link, set sharing to 'Anyone with the link'.")
+        elif "not a transcribable" in err:
+            log("ERROR: File format is not supported for transcription.")
+            log("  Supported formats: mp3/mp4/wav/m4a/ogg/flac/aac/wma/opus/webm/mkv/avi/mov/wmv/3gp/ts")
+        else:
+            log(f"ERROR: {err}. {details}".strip())
+        sys.exit(1)
     res.raise_for_status()
     job_id = res.json()["textopsJobId"]
     log(f"[JOB] ID: {job_id}")
@@ -268,6 +271,8 @@ def main():
                         help="Maximum number of speakers (used with diarization)")
     parser.add_argument("--word-timestamps", default="false",
                         help="Word-level timestamps (slower): true/false")
+    parser.add_argument("--is-hebrew", default="true",
+                        help="Route to Hebrew model (true, default) or multilingual model (false)")
     parser.add_argument("--output-format", default="json",
                         choices=["json", "text"], help="Output format")
     parser.add_argument("--output-path", default=None,
@@ -300,6 +305,7 @@ def main():
     else:
         has_diarize = None   # auto — sends null to API → server auto-detects speakers
     has_word_ts      = args.word_timestamps.lower() in ("true", "1", "yes")
+    is_hebrew        = args.is_hebrew.lower() not in ("false", "0", "no")
     min_speakers     = args.min_speakers
     max_speakers     = args.max_speakers
     output_format = args.output_format
@@ -311,8 +317,7 @@ def main():
         ext = ".json" if output_format == "json" else ".txt"
         output_path = os.path.join(os.getcwd(), f"{args.job_id}_transcript{ext}")
     elif args.file.startswith("http://") or args.file.startswith("https://"):
-        # output_path for URLs is finalized after probe (filename may come from there)
-        output_path = None
+        output_path = None  # finalized below from URL basename
     else:
         base = os.path.splitext(args.file)[0]
         ext  = ".json" if output_format == "json" else ".txt"
@@ -352,34 +357,16 @@ def main():
         is_url   = file_arg.startswith("http://") or file_arg.startswith("https://")
 
         if is_url:
-            log(f"[PROBE] Checking URL: {file_arg}")
-            probe = probe_url(file_arg)
-            if not probe.get("accessible"):
-                log(f"ERROR: URL is not publicly accessible: {probe.get('error') or 'unknown error'}")
-                log("  If this is a Google Drive link, set sharing to 'Anyone with the link'.")
-                sys.exit(1)
-            if not probe.get("transcribable"):
-                log("ERROR: File format is not supported for transcription.")
-                log("  Supported formats: mp3/mp4/wav/m4a/ogg/flac/aac/wma/opus/webm/mkv/avi/mov/wmv/3gp/ts")
-                sys.exit(1)
-
-            probe_filename = probe.get("filename") or "transcript"
-            source_type    = probe.get("source_type", "direct")
-            duration_sec   = probe.get("duration_seconds")
-            size_bytes     = probe.get("size_bytes")
-
-            size_str = f", {int(size_bytes) / (1024*1024):.1f} MB" if size_bytes else ""
-            dur_str  = f", {duration_sec:.0f}s ({duration_sec/60:.1f} min)" if duration_sec else ", duration unknown"
-            log(f"[PROBE] OK | source: {source_type} | file: {probe_filename}{size_str}{dur_str}")
-
-            # finalize output_path now that we have the filename
+            from urllib.parse import urlparse
+            url_basename = os.path.basename(urlparse(file_arg).path) or "audio"
+            base = os.path.splitext(url_basename)[0] or "transcript"
             if not output_path:
-                base = os.path.splitext(os.path.basename(probe_filename))[0]
                 ext  = ".json" if output_format == "json" else ".txt"
                 output_path = os.path.join(os.getcwd(), base + "_transcript" + ext)
 
+            duration_sec = None
             download_url = file_arg
-            file_size_mb = int(size_bytes) / (1024 * 1024) if size_bytes else 0
+            file_size_mb = 0
         else:
             filename     = os.path.basename(file_arg)
             file_size_mb = os.path.getsize(file_arg) / (1024 * 1024)
@@ -398,7 +385,7 @@ def main():
         poll_interval = POLL_INTERVAL
         max_polls     = MAX_POLLS
 
-        job_id = submit_job(download_url, has_diarize, has_word_ts, min_speakers, max_speakers)
+        job_id = submit_job(download_url, has_diarize, has_word_ts, min_speakers, max_speakers, is_hebrew)
 
         if args.submit_only:
             base_path = os.path.splitext(output_path)[0] if output_path else os.path.join(os.getcwd(), job_id + "_transcript")
