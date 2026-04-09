@@ -27,12 +27,19 @@ except ImportError:
 # ── RTL helpers ────────────────────────────────────────────────────────────────
 
 def _set_para_rtl(para, is_rtl):
-    """Set paragraph direction and alignment."""
-    para.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT if is_rtl else WD_PARAGRAPH_ALIGNMENT.LEFT
+    """Set paragraph direction (bidi must be added BEFORE jc in schema order)."""
     pPr = para._p.get_or_add_pPr()
+    # Remove any existing bidi/jc so we start clean
+    for tag in ('w:bidi', 'w:jc'):
+        for el in pPr.findall(qn(tag)):
+            pPr.remove(el)
+    # w:bidi MUST precede w:jc in pPr — add it first
     bidi = OxmlElement('w:bidi')
-    bidi.set(qn('w:val'), '1' if is_rtl else '0')
+    if not is_rtl:
+        bidi.set(qn('w:val'), '0')
     pPr.append(bidi)
+    # Now alignment (adds w:jc after bidi — correct schema order)
+    para.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT if is_rtl else WD_PARAGRAPH_ALIGNMENT.LEFT
 
 
 def _set_run_rtl(run, is_rtl):
@@ -41,6 +48,24 @@ def _set_run_rtl(run, is_rtl):
     rtl = OxmlElement('w:rtl')
     rtl.set(qn('w:val'), '1' if is_rtl else '0')
     rPr.append(rtl)
+
+
+def _setup_document_rtl(doc):
+    """Force RTL defaults on the Normal and List Bullet styles."""
+    for style_name in ('Normal', 'List Bullet', 'List Bullet 2', 'List Bullet 3'):
+        try:
+            style = doc.styles[style_name]
+            pPr = style.element.get_or_add_pPr()
+            for tag in ('w:bidi', 'w:jc'):
+                for el in pPr.findall(qn(tag)):
+                    pPr.remove(el)
+            bidi = OxmlElement('w:bidi')
+            pPr.append(bidi)
+            jc = OxmlElement('w:jc')
+            jc.set(qn('w:val'), 'right')
+            pPr.append(jc)
+        except KeyError:
+            pass
 
 
 # ── Inline Markdown → runs ─────────────────────────────────────────────────────
@@ -229,6 +254,10 @@ def md_to_word(input_file, output_file, is_rtl=True):
     # Default body font
     doc.styles['Normal'].font.name = 'Arial'
     doc.styles['Normal'].font.size = Pt(11)
+
+    # Force RTL on all base styles before writing any content
+    if is_rtl:
+        _setup_document_rtl(doc)
 
     in_code_block = False
     i = 0
