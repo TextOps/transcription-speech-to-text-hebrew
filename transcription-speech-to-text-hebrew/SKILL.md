@@ -110,7 +110,7 @@ If the user didn't provide a file yet, ask for it. Once you have the file:
   (e.g. "הרצאה", "lecture", "monologue", "speech", "שיעור", "דרשה",
   or user says "דובר אחד" / "רק אני" / "single speaker") → `--diarization false`
 - If user explicitly states a count (e.g. "יש 3 דוברים") → `--max-speakers 3`
-- Otherwise → omit diarization flags entirely (API auto-detects, up to 5 speakers)
+- Otherwise → omit diarization flags entirely (API auto-detects, up to 3 speakers)
 
 **Language:**
 - Default: assume Hebrew — do **not** add any language flag.
