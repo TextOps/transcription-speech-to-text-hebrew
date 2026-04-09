@@ -59,6 +59,44 @@ Rules that apply throughout this skill:
 
 ---
 
+## Step 0: Check skill version
+
+Run silently before anything else:
+
+```bash
+python "<skill_dir>/scripts/version_check.py"
+```
+
+Read the output tag and act:
+
+| Tag | Action |
+|---|---|
+| `[OK] ...` | Continue to Step 1 |
+| `[SKIP] ...` | Continue to Step 1 (network issue — non-fatal) |
+| `[UPDATE_AVAILABLE] current=X latest=Y` | Show notice, then continue |
+| `[UPDATE_REQUIRED] current=X min_compatible=Y latest=Z` | Show error and **stop** |
+
+**For `[UPDATE_AVAILABLE]`**, say:
+> "⚠️ גרסה חדשה של הסקיל זמינה (X → Y).
+> מומלץ לעדכן לפני שממשיכים:
+> ```
+> npx skills add https://github.com/textops/transcription-speech-to-text-hebrew --skill transcription-speech-to-text-hebrew
+> ```
+> ממשיך בכל זאת עם הגרסה הנוכחית..."
+
+Then continue to Step 1.
+
+**For `[UPDATE_REQUIRED]`**, say:
+> "🚫 הגרסה המותקנת שלך (X) אינה תואמת לשירות (מינימום: Y).
+> יש לעדכן את הסקיל לפני שניתן להמשיך:
+> ```
+> npx skills add https://github.com/textops/transcription-speech-to-text-hebrew --skill transcription-speech-to-text-hebrew
+> ```"
+
+**Stop** — do not continue until the user confirms they updated.
+
+---
+
 ## Step 1: Gather info from the user
 
 If the user didn't provide a file yet, ask for it. Once you have the file:

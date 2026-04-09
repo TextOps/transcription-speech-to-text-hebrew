@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
 Bumps the patch version in a SKILL.md frontmatter metadata.version field.
+Also syncs the new version into version.json (if it exists next to SKILL.md).
+
 Usage: python bump_version.py <path/to/SKILL.md>
 """
 
 import sys
 import re
+import json
+import os
 
 
 def bump_patch(version: str) -> str:
@@ -49,6 +53,17 @@ def main():
         f.write(new_content)
 
     print(f"  {old_ver} -> {new_ver}")
+
+    # Sync version.json if it exists next to SKILL.md
+    version_json_path = os.path.join(os.path.dirname(path), "version.json")
+    if os.path.exists(version_json_path):
+        with open(version_json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        data["version"] = new_ver
+        with open(version_json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+        print(f"  version.json synced -> {new_ver}")
 
 
 if __name__ == "__main__":
