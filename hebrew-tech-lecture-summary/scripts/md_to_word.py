@@ -24,8 +24,8 @@ except ImportError:
 # ── RTL ───────────────────────────────────────────────────────────────────────
 
 def _rtl(para):
-    """Make a paragraph RTL. w:bidi must be inserted before w:jc."""
-    para.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+    """Make a paragraph RTL with full justification. w:bidi must precede w:jc."""
+    para.alignment = WD_PARAGRAPH_ALIGNMENT.JUSTIFY
     pPr = para._p.get_or_add_pPr()
     bidi = OxmlElement('w:bidi')
     pPr.insert(0, bidi)          # position 0 guarantees it precedes w:jc
