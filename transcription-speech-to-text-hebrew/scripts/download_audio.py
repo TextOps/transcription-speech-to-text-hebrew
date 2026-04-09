@@ -4,7 +4,7 @@ Downloads audio from a YouTube URL for the TextOps transcription skill.
 Usage:
   python download_audio.py <youtube_url>
 
-Extracts audio-only (mp3) to the current working directory.
+Extracts audio-only (native format, no re-encoding) to the current working directory.
 Installs / updates yt-dlp automatically if needed.
 Exits 0 on success, 1 on failure.
 
@@ -92,14 +92,14 @@ def _parse_destination(output):
     return None
 
 
+AUDIO_EXTENSIONS = (".webm", ".opus", ".m4a", ".ogg", ".mp3", ".wav", ".aac")
+
 def _run_download(url):
     """Run yt-dlp and return (success, output, file_path)."""
     cmd = [
         "yt-dlp",
         "-x",
-        "--format", "bestaudio",
-        "--audio-format", "mp3",
-        "--audio-quality", "0",
+        "--format", "bestaudio[abr<=96]/bestaudio",
         "--no-playlist",
         "-o", "%(title)s.%(ext)s",
         url,
@@ -133,8 +133,8 @@ def download(url):
         sys.exit(1)
 
     if not path or not os.path.isfile(path):
-        # yt-dlp succeeded but we couldn't parse the path — search cwd for newest mp3
-        mp3s = [f for f in os.listdir(".") if f.endswith(".mp3")]
+        # yt-dlp succeeded but we couldn't parse the path — search cwd for newest audio file
+        mp3s = [f for f in os.listdir(".") if f.endswith(AUDIO_EXTENSIONS)]
         if mp3s:
             path = os.path.abspath(sorted(mp3s, key=os.path.getmtime)[-1])
         else:
