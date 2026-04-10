@@ -283,13 +283,6 @@ def main():
                         help="With --job-id: poll once. Exit 0=done (files saved), 3=still processing, 1=error")
     args = parser.parse_args()
 
-    if not API_KEY:
-        log("ERROR: Missing TEXTOPS_API_KEY — set the environment variable and try again.")
-        log("  Get your API key at: https://text-ops-subs.com/api/keys")
-        log("  Windows: set TEXTOPS_API_KEY=your_key")
-        log("  Mac/Linux: export TEXTOPS_API_KEY=your_key")
-        sys.exit(1)
-
     if not args.file and not args.job_id:
         log("ERROR: Required: --file or --job-id")
         sys.exit(1)

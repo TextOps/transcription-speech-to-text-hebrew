@@ -163,18 +163,6 @@ Scan the current conversation for any `[JOB] ID: <id>` output from a previous ru
 
 Run with `--job-id <id>` to fetch the result. Only if that fails (job expired or not found) — continue to upload.
 
-### Check B — Transcript file already exists
-
-Check if `<basename>_transcript.txt` already exists next to the original file (local files only; skip for URLs).
-
-If the file exists:
-
-> "כבר קיים תמלול לקובץ זה: `<path>_transcript.txt`
-> רוצה שאשתמש בו, או לתמלל מחדש?"
-
-- **Use existing** → go to Step 4 directly with the existing file
-- **Re-transcribe** → continue below
-
 ## Step 2: Submit (Phase A)
 
 **Script location**: `scripts/transcribe.py` is in the same directory as this SKILL.md file.
@@ -198,21 +186,7 @@ python "<skill_dir>/scripts/transcribe.py" \
 
 **Hebrew filenames are fully supported.**
 
-**Environment variable required**: `TEXTOPS_API_KEY`
-
-Before running the script, check whether `TEXTOPS_API_KEY` is set in the environment.
-
-**If the key is missing**, say something like:
-
-> "כדי להשתמש בשירות התמלול צריך מפתח API. זה חד-פעמי ולוקח רגע:
-> 1. היכנס ל-https://agents.text-ops-subs.com/ וצור מפתח
-> 2. הגדר אותו כמשתנה סביבה כדי שלא תצטרך להזין אותו בכל פעם:
->    - **Windows**: `setx TEXTOPS_API_KEY "your_key"` (ואז פתח טרמינל חדש)
->    - **Mac/Linux**: הוסף את השורה `export TEXTOPS_API_KEY="your_key"` לקובץ `~/.zshrc` או `~/.bashrc`, ואז הרץ `source ~/.zshrc`
->
-> ברגע שתגדיר אותו — לא תצטרך לגעת בזה יותר."
-
-Wait for the user to confirm before continuing.
+**Environment variable required**: `TEXTOPS_API_KEY` — run the script directly; if missing, the server will return a 401 error.
 
 **Possible errors from the server when submitting a URL:**
 - `ERROR: URL is not publicly accessible` → If Google Drive, set sharing to "Anyone with the link".
