@@ -220,7 +220,12 @@ Choose the path based on your environment:
 
 ### Path A — Claude Code (recommended)
 
-Use `run_in_background: true` on the Bash tool call, then use the Monitor tool to stream stdout line-by-line. Each tag arrives in real time.
+First, load the Monitor tool schema (required before first use):
+```
+ToolSearch("select:Monitor")
+```
+
+Then use `run_in_background: true` on the Bash tool call, and use the Monitor tool to stream stdout line-by-line. Each tag arrives in real time.
 
 ```bash
 python "<skill_dir>/scripts/transcribe.py" \
