@@ -216,7 +216,11 @@ Wait for the user to confirm before continuing.
 
 ## Step 3: Poll for result (Phase B)
 
-Run in background — the script handles all waiting and polling internally:
+The script handles all waiting and polling internally — do not sleep or loop yourself.
+
+**If running inside Claude Code:** use `run_in_background: true` on the Bash tool call, then use the Monitor tool to stream stdout line-by-line. Each tag arrives in real time as the script runs.
+
+**Otherwise:** run the command normally (blocking) and process the output when it returns.
 
 ```bash
 python "<skill_dir>/scripts/transcribe.py" \
@@ -225,7 +229,7 @@ python "<skill_dir>/scripts/transcribe.py" \
   --diarization <true|false>
 ```
 
-Monitor stdout and relay to the user:
+Relay each output line to the user as it arrives:
 
 | Output line | What to tell the user |
 |---|---|
