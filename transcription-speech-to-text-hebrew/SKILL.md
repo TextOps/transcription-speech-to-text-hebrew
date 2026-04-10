@@ -186,7 +186,19 @@ python "<skill_dir>/scripts/transcribe.py" \
 
 **Hebrew filenames are fully supported.**
 
-**Environment variable required**: `TEXTOPS_API_KEY` — run the script directly; if missing, the server will return a 401 error.
+**Environment variable required**: `TEXTOPS_API_KEY`
+
+Check whether `TEXTOPS_API_KEY` is set in the environment. If it is set — proceed silently. If it is missing, say:
+
+> "כדי להשתמש בשירות התמלול צריך מפתח API. זה חד-פעמי ולוקח רגע:
+> 1. היכנס ל-https://agents.text-ops-subs.com/ וצור מפתח
+> 2. הגדר אותו כמשתנה סביבה כדי שלא תצטרך להזין אותו בכל פעם:
+>    - **Windows**: `setx TEXTOPS_API_KEY "your_key"` (ואז פתח טרמינל חדש)
+>    - **Mac/Linux**: הוסף את השורה `export TEXTOPS_API_KEY="your_key"` לקובץ `~/.zshrc` או `~/.bashrc`, ואז הרץ `source ~/.zshrc`
+>
+> ברגע שתגדיר אותו — לא תצטרך לגעת בזה יותר."
+
+Wait for the user to confirm before continuing.
 
 **Possible errors from the server when submitting a URL:**
 - `ERROR: URL is not publicly accessible` → If Google Drive, set sharing to "Anyone with the link".
