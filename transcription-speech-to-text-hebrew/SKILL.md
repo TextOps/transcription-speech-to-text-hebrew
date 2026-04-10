@@ -216,11 +216,11 @@ Wait for the user to confirm before continuing.
 
 ## Step 3: Poll for result (Phase B)
 
-The script handles all waiting and polling internally — do not sleep or loop yourself.
+Choose the path based on your environment:
 
-**If running inside Claude Code:** use `run_in_background: true` on the Bash tool call, then use the Monitor tool to stream stdout line-by-line. Each tag arrives in real time as the script runs.
+### Path A — Claude Code (recommended)
 
-**Otherwise:** run the command normally (blocking) and process the output when it returns.
+Use `run_in_background: true` on the Bash tool call, then use the Monitor tool to stream stdout line-by-line. Each tag arrives in real time.
 
 ```bash
 python "<skill_dir>/scripts/transcribe.py" \
@@ -229,7 +229,7 @@ python "<skill_dir>/scripts/transcribe.py" \
   --diarization <true|false>
 ```
 
-Relay each output line to the user as it arrives:
+Relay each line to the user as it arrives:
 
 | Output line | What to tell the user |
 |---|---|
@@ -237,6 +237,28 @@ Relay each output line to the user as it arrives:
 | `[PROGRESS] X% (Ys elapsed)` | "מתמלל... X%" |
 | `[DONE] Processing complete` | Continue to Step 4 |
 | `ERROR: ...` | Show error, go to Troubleshooting |
+
+### Path B — Other environments
+
+Use `--check-once` and loop — each call is a single HTTP check (short, non-blocking). Sleep `poll_interval` seconds between calls.
+
+Wait `first_check` seconds, then loop:
+
+```bash
+python "<skill_dir>/scripts/transcribe.py" \
+  --job-id <job_id> \
+  --check-once \
+  --output-path <base_path> \
+  --diarization <true|false>
+```
+
+| Exit code | Output line | What to do |
+|---|---|---|
+| `0` | `[DONE] ...` | Continue to Step 4 |
+| `3` | `[STATUS] processing X%` | Tell user: "מתמלל... X%", sleep `poll_interval` seconds, repeat |
+| `1` | `ERROR: ...` | Go to Troubleshooting |
+
+**Safety cap**: after 20 iterations without exit 0, tell the user and stop.
 
 ## Step 3.5: Convert existing JSON (optional)
 
