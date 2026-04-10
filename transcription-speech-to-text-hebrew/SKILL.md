@@ -216,26 +216,23 @@ Wait for the user to confirm before continuing.
 
 ## Step 3: Poll for result (Phase B)
 
-Wait `first_check` seconds, then loop — run `--check-once` and act on the exit code:
+Run in background — the script handles all waiting and polling internally:
 
 ```bash
 python "<skill_dir>/scripts/transcribe.py" \
   --job-id <job_id> \
-  --check-once \
   --output-path <base_path> \
   --diarization <true|false>
 ```
 
-| Exit code | Output line | What to do |
-|---|---|---|
-| `0` | `[DONE] ...` + `[FILE] ...` | Proceed to Step 4 |
-| `3` | `[STATUS] processing X%` | Tell user: "מתמלל... X%", wait `poll_interval` seconds, repeat |
-| `1` | `ERROR: ...` | Go to Troubleshooting |
+Monitor stdout and relay to the user:
 
-**Safety cap**: after 20 iterations without exit 0, tell the user and fall back to full-poll mode:
-```bash
-python "<skill_dir>/scripts/transcribe.py" --job-id <job_id> --diarization <true|false> --output-path <base_path>
-```
+| Output line | What to tell the user |
+|---|---|
+| `[WAIT] First check in Xs...` | "ממתין Xs לפני בדיקה ראשונה..." |
+| `[PROGRESS] X% (Ys elapsed)` | "מתמלל... X%" |
+| `[DONE] Processing complete` | Continue to Step 4 |
+| `ERROR: ...` | Show error, go to Troubleshooting |
 
 ## Step 3.5: Convert existing JSON (optional)
 
