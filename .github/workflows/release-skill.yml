@@ -15,23 +15,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Package skill
         run: |
-          mkdir -p dist
-          cd .agents/skills/skill-creator
-          python scripts/package_skill.py ../../../transcription-speech-to-text-hebrew ../../../dist/
+          cd transcription-speech-to-text-hebrew
+          zip -r ../transcription-speech-to-text-hebrew.skill . \
+            --exclude "*.pyc" \
+            --exclude "*/__pycache__/*" \
+            --exclude "*/.DS_Store"
 
       - name: Create or update latest release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release delete latest --yes --cleanup-tag 2>/dev/null || true
-          gh release create latest dist/transcription-speech-to-text-hebrew.skill \
+          gh release create latest transcription-speech-to-text-hebrew.skill \
             --title "Latest Skills" \
             --notes "Auto-updated on every push to main." \
             --latest
