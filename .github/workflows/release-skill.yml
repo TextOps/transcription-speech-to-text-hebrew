@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'transcription-speech-to-text-hebrew/**'
+  workflow_dispatch:
 
 jobs:
   release:
