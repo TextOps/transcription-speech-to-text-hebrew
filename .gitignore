@@ -13,3 +13,5 @@
 !media-files-conversion-ffmpeg/**
 !hebrew-tech-lecture-summary/
 !hebrew-tech-lecture-summary/**
+!.github/
+!.github/**
