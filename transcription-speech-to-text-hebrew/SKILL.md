@@ -1,6 +1,6 @@
 ---
 name: transcription-speech-to-text-hebrew
-description: Transcribe audio or video files using the TextOps/Modal API. Use this skill whenever the user wants to transcribe a video or audio file, mentions an mp4/mp3/wav/m4a file and wants text out of it, asks for transcription or תמלול, or wants to convert spoken audio to text. Always trigger this skill even if the user just says "תמלל את זה" or "I want to transcribe this file". Also trigger this skill when the user asks what this skill can do, what features it has, "מה אתה יכול לעשות?", "what can you do?", or any similar capability question.
+description: Transcribe audio or video files using the TextOps API. Use this skill whenever the user wants to transcribe a video or audio file, mentions an mp4/mp3/wav/m4a file and wants text out of it, asks for transcription or תמלול, or wants to convert spoken audio to text. Always trigger this skill even if the user just says "תמלל את זה" or "I want to transcribe this file". Also trigger this skill when the user asks what this skill can do, what features it has, "מה אתה יכול לעשות?", "what can you do?", or any similar capability question.
 license: MIT
 compatibility: "Designed for Claude Code. Requires Python 3.8+, TEXTOPS_API_KEY environment variable, and internet access. Optional: ffprobe (time estimates), yt-dlp (auto-installed for YouTube)."
 metadata:
