@@ -1,25 +1,30 @@
 ---
 name: hebrew-tech-lecture-summary
-description: Summarize Hebrew tech lectures and meetings from transcription files into structured Markdown. Use when the user asks to summarize a transcription, create meeting notes, summarize a lecture/presentation in Hebrew, or mentions סיכום/תמלול/הרצאה.
+description: Summarize any content — lectures, meetings, articles, transcriptions, or any text — into structured Hebrew Markdown. Use when the user asks to summarize anything: סכם לי, תסכם, סיכום, summarize, meeting notes, or any request to condense content. Output is ALWAYS in Hebrew regardless of input language.
 license: MIT
 compatibility: "Designed for Claude Code. No external dependencies required."
 metadata:
-  version: "1.0.8"
+  version: "1.1.0"
   author: "TextOps"
-  tags: "summary, lecture, hebrew, meeting-notes, transcription"
+  tags: "summary, lecture, hebrew, meeting-notes, transcription, article"
   language: "he"
 ---
 
-# סיכום הרצאות ופגישות טכניות בעברית
+# סיכום טקסטים ותכנים בעברית
 
-יוצר סיכום מובנה ב-Markdown מתוך קובץ תמלול, בצורה שנותנת ערך מלא למי שלא היה בהרצאה.
+יוצר סיכום מובנה ב-Markdown מכל תוכן — הרצאה, פגישה, מאמר, תמלול, או כל טקסט אחר.
+
+**הפלט תמיד בעברית — גם אם החומר המקורי באנגלית.**
 
 ## תהליך העבודה
 
-1. קרא את קובץ התמלול (בד"כ `output/transcription_plain.txt`)
-2. נתח את התוכן: זהה נושאים, דוברים, שאלות מהקהל, וציטוטים חשובים
-3. כתוב את הסיכום לפי המבנה שב-[template.md](template.md)
-4. שמור ב-`output/lecture_summary.md`
+1. קבל את התוכן לסיכום — אחת מהאפשרויות:
+   - טקסט שהמשתמש הדביק ישירות
+   - קובץ תמלול (בד"כ `output/transcription_plain.txt`)
+   - קישור, מאמר, או כל חומר אחר שסופק
+2. נתח את התוכן: זהה נושאים, דוברים, שאלות, וציטוטים חשובים
+3. כתוב את הסיכום **בעברית** לפי המבנה שב-[template.md](template.md)
+4. אם מדובר בקובץ — שמור לפי הכללים ב-**"שמירת קובץ הסיכום"** למטה
 5. (אופציונלי) המר ל-Word — ראה שלב "ייצוא ל-Word" למטה
 
 ## אסור בהחלט
@@ -37,10 +42,40 @@ metadata:
 
 ---
 
+## שמירת קובץ הסיכום
+
+### בחירת שם קובץ
+
+לפני השמירה, בדוק אם `output/lecture_summary.md` כבר קיים.
+
+**אם הקובץ לא קיים** — שמור כ-`output/lecture_summary.md`.
+
+**אם הקובץ כבר קיים** — צור שם מתאים יותר לפי הנוסחה:
+
+```
+output/summary_<נושא-בקצרה>.md
+```
+
+כללים לבניית השם:
+- גזור את הנושא מהכותרת הראשית של הסיכום (`# סיכום: [נושא]`)
+- השתמש ב-2–4 מילים מהנושא (באנגלית אם הנושא טכני, בעברית מתועתקת אם לא)
+- החלף רווחים ב-`_`, הסר תווים מיוחדים
+- דוגמאות: `summary_ci_cd_pipeline.md`, `summary_product_review.md`, `summary_agile_sprint.md`
+
+**לאחר שמירה בשם חלופי**, הודע למשתמש:
+> "`output/lecture_summary.md` כבר קיים — הסיכום נשמר בשם: `output/summary_<שם>.md`"
+
+### אותו כלל לקובץ Word
+
+אם בעת ייצוא ל-`.docx` קיים כבר קובץ באותו שם — השתמש באותה לוגיקת שם חלופי והודע למשתמש.
+
+---
+
 ## כללי כתיבה
 
 ### שפה ומונחים
-- הסיכום **בעברית**, אבל מושגי tech ותכנות נשארים **באנגלית**
+- הסיכום **תמיד בעברית** — ללא קשר לשפת החומר המקורי (עברית, אנגלית, או כל שפה אחרת)
+- מושגי tech ותכנות נשארים **באנגלית**
 - דוגמאות: production, deploy, PR, build, MCP, workspace, branch, commit, Docker image, rollout, pipeline, CI/CD, code review, unit test, integration test, API, endpoint, repository
 - שמות כלים ומוצרים באנגלית: Cursor, Jenkins, Argo, Splunk, Jira, GitHub
 
