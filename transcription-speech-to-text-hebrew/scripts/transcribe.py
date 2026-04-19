@@ -352,9 +352,9 @@ def main():
     elif args.file.startswith("http://") or args.file.startswith("https://"):
         output_path = None  # finalized below from URL basename
     else:
-        base = os.path.splitext(args.file)[0]
+        base = os.path.splitext(os.path.basename(args.file))[0]
         ext  = ".json" if output_format == "json" else ".txt"
-        output_path = base + "_transcript" + ext
+        output_path = os.path.join(os.getcwd(), base + "_transcript" + ext)
 
     # ── resume / check-once from existing job ID ─────────────────────────────
     if args.job_id:
