@@ -193,7 +193,7 @@ The script checks for the key automatically — first in `textops_settings.json`
 If the script exits with a missing-key error, say:
 
 > "כדי להשתמש בשירות התמלול צריך מפתח API.
-> 👉 קבל מפתח כאן: https://text-ops-subs.com/api-keys
+> 👉 קבל מפתח כאן: https://agents.text-ops-subs.com
 >
 > **אפשרות 1 — textops_settings.json (הכי פשוט):**
 > פתח את הקובץ `textops_settings.json` שנמצא בתיקיית הסקיל, והחלף את `YOUR_API_KEY_HERE` במפתח שלך.

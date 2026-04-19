@@ -44,7 +44,7 @@ def _load_api_key():
         "\n"
         "ERROR: TEXTOPS_API_KEY not found.\n"
         "\n"
-        "Get your API key here: https://text-ops-subs.com/api-keys\n"
+        "Get your API key here: https://agents.text-ops-subs.com\n"
         "\n"
         "Option 1 — settings.json (easiest):\n"
         f"  Open: {settings_path_display}\n"
