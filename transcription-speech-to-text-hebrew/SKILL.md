@@ -2,7 +2,7 @@
 name: transcription-speech-to-text-hebrew
 description: Transcribe audio or video files using the TextOps API. Use this skill whenever the user wants to transcribe a video or audio file, mentions an mp4/mp3/wav/m4a file and wants text out of it, asks for transcription or תמלול, or wants to convert spoken audio to text. Always trigger this skill even if the user just says "תמלל את זה" or "I want to transcribe this file". Also trigger this skill when the user asks what this skill can do, what features it has, "מה אתה יכול לעשות?", "what can you do?", or any similar capability question.
 license: MIT
-compatibility: "Designed for Claude Code. Requires Python 3.8+, TEXTOPS_API_KEY (via settings.json or environment variable), and internet access. Optional: ffprobe (time estimates), yt-dlp (auto-installed for YouTube)."
+compatibility: "Designed for Claude Code. Requires Python 3.8+, TEXTOPS_API_KEY (via textops_settings.json or environment variable), and internet access. Optional: ffprobe (time estimates), yt-dlp (auto-installed for YouTube)."
 metadata:
   version: "1.0.31"
   author: "TextOps"
@@ -27,7 +27,7 @@ If the user asks what this skill can do (e.g. "מה אתה יכול לעשות?"
 Do not proceed to any transcription steps — just answer and stop.
 
 > **Requirements**
-> - `TEXTOPS_API_KEY` must be set — either in `settings.json` (easiest) or as an environment variable (see Step 2 for instructions).
+> - `TEXTOPS_API_KEY` must be set — either in `textops_settings.json` (easiest) or as an environment variable (see Step 2 for instructions).
 > - `ffprobe` (part of ffmpeg) or `moviepy` — optional, used to estimate processing time for local files. If neither is installed the script still works; it just skips the time estimate.
 
 > **Publisher**
@@ -188,22 +188,22 @@ python "<skill_dir>/scripts/transcribe.py" \
 
 **API key required**: `TEXTOPS_API_KEY`
 
-The script checks for the key automatically — first in `settings.json`, then in the environment. If neither is found, the script will print a clear error with instructions and exit.
+The script checks for the key automatically — first in `textops_settings.json`, then in the environment. If neither is found, the script will print a clear error with instructions and exit.
 
 If the script exits with a missing-key error, say:
 
 > "כדי להשתמש בשירות התמלול צריך מפתח API.
 > 👉 קבל מפתח כאן: https://text-ops-subs.com/api-keys
 >
-> **אפשרות 1 — settings.json (הכי פשוט):**
-> פתח את הקובץ `settings.json` שנמצא בתיקיית הסקיל, והחלף את `YOUR_API_KEY_HERE` במפתח שלך.
+> **אפשרות 1 — textops_settings.json (הכי פשוט):**
+> פתח את הקובץ `textops_settings.json` שנמצא בתיקיית הסקיל, והחלף את `YOUR_API_KEY_HERE` במפתח שלך.
 >
 > **אפשרות 2 — משתנה סביבה:**
 > - **Windows (Command Prompt):** `setx TEXTOPS_API_KEY "your_key"` — ואז פתח טרמינל חדש
 > - **Windows (PowerShell):** `[System.Environment]::SetEnvironmentVariable('TEXTOPS_API_KEY','your_key','User')`
 > - **Mac/Linux:** הוסף `export TEXTOPS_API_KEY="your_key"` לקובץ `~/.zshrc` ואז `source ~/.zshrc`"
 
-If the user provides the API key directly in the chat, write it into `settings.json` (replace `YOUR_API_KEY_HERE`) and confirm: "שמרתי את המפתח ב-settings.json — מתחיל תמלול."
+If the user provides the API key directly in the chat, write it into `textops_settings.json` (replace `YOUR_API_KEY_HERE`) and confirm: "שמרתי את המפתח ב-textops_settings.json — מתחיל תמלול."
 
 Wait for the user to confirm before continuing.
 

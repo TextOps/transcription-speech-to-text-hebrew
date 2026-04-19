@@ -23,7 +23,7 @@ except Exception:
 
 def _load_api_key():
     # 1. Try settings.json next to the skill folder
-    settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings.json")
+    settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "textops_settings.json")
     if os.path.isfile(settings_path):
         try:
             with open(settings_path, encoding="utf-8") as f:
