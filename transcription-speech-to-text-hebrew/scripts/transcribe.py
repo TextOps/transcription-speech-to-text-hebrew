@@ -21,7 +21,47 @@ except Exception:
 
 # ── API config ───────────────────────────────────────────────────────────────
 
-API_KEY = os.environ.get("TEXTOPS_API_KEY", "")
+def _load_api_key():
+    # 1. Try settings.json next to the skill folder
+    settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "settings.json")
+    if os.path.isfile(settings_path):
+        try:
+            with open(settings_path, encoding="utf-8") as f:
+                val = json.load(f).get("TEXTOPS_API_KEY", "")
+            if val and val != "YOUR_API_KEY_HERE":
+                return val
+        except Exception:
+            pass
+
+    # 2. Fall back to environment variable
+    val = os.environ.get("TEXTOPS_API_KEY", "")
+    if val:
+        return val
+
+    # 3. Neither found — guide the user
+    settings_path_display = settings_path
+    print(
+        "\n"
+        "ERROR: TEXTOPS_API_KEY not found.\n"
+        "\n"
+        "Get your API key here: https://text-ops-subs.com/api-keys\n"
+        "\n"
+        "Option 1 — settings.json (easiest):\n"
+        f"  Open: {settings_path_display}\n"
+        '  Replace  "YOUR_API_KEY_HERE"  with your key and save.\n'
+        "\n"
+        "Option 2 — environment variable:\n"
+        "  Windows (Command Prompt):\n"
+        "    setx TEXTOPS_API_KEY your_key_here\n"
+        "  Windows (PowerShell):\n"
+        "    [System.Environment]::SetEnvironmentVariable('TEXTOPS_API_KEY','your_key_here','User')\n"
+        "  Mac / Linux:\n"
+        "    echo 'export TEXTOPS_API_KEY=your_key_here' >> ~/.zshrc && source ~/.zshrc\n",
+        flush=True,
+    )
+    sys.exit(1)
+
+API_KEY = _load_api_key()
 
 
 
