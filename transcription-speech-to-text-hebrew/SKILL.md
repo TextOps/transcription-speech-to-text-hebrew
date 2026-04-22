@@ -143,7 +143,7 @@ Read and act on these output tags:
 | `[YTDLP] Ready (version X)` | Tell user: "yt-dlp מוכן (גרסה X)" |
 | `[AUDIO] Fetching audio...` | Tell user: "מוריד..." |
 | `[AUDIO] Updating yt-dlp and retrying...` | Tell user: "מעדכן yt-dlp ומנסה שוב..." |
-| `[FILE] /path/to/file.mp3` | **Save as `<downloaded_file>`** |
+| `[FILE] /path/to/file.mp3` | **Save as `<downloaded_file>`**. Tell user (informational only — do not wait for confirmation): "הורדתי: `<filename>`" |
 | `ERROR: ...` | Show the error to the user and stop |
 
 On success: use `<downloaded_file>` as the input and continue from **Step 2** as a local file.
