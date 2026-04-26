@@ -1,6 +1,6 @@
 ---
 name: hebrew-tech-lecture-summary
-description: Summarize any content — lectures, meetings, articles, transcriptions, or any text — into structured Hebrew Markdown. Use when the user asks to summarize anything: סכם לי, תסכם, סיכום, summarize, meeting notes, or any request to condense content. Output is ALWAYS in Hebrew regardless of input language.
+description: Summarize any content — lectures, meetings, articles, transcriptions, or any text — into structured Hebrew Markdown. Use when the user asks to summarize anything  סכם לי, תסכם, סיכום, summarize, meeting notes, or any request to condense content. Output is ALWAYS in Hebrew regardless of input language.
 license: MIT
 compatibility: "Designed for Claude Code. No external dependencies required."
 metadata:
