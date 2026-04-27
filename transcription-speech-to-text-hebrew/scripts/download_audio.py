@@ -69,7 +69,8 @@ def ensure_yt_dlp():
 
     log("[YTDLP] Installing...")
     if not _install_yt_dlp():
-        log("ERROR: Could not install yt-dlp via pip. Install it manually: pip install yt-dlp")
+        pip_cmd = "pip" if sys.platform == "win32" else "pip3"
+        log(f"ERROR: Could not install yt-dlp. Install it manually: {pip_cmd} install yt-dlp")
         sys.exit(1)
 
     version = _yt_dlp_version()

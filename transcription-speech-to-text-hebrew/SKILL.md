@@ -4,7 +4,7 @@ description: Transcribe audio or video files using the TextOps API. Use this ski
 license: MIT
 compatibility: "Designed for Claude Code. Requires Python 3.8+, TEXTOPS_API_KEY (via textops_settings.json or environment variable), and internet access. Optional: ffprobe (time estimates), yt-dlp (auto-installed for YouTube)."
 metadata:
-  version: "1.0.35"
+  version: "1.1.0"
   author: "TextOps"
   tags: "transcription, speech-to-text, audio, video, hebrew, diarization, youtube"
   language: "he"
@@ -75,11 +75,20 @@ Read the output tag and act:
 | `[OK] ...` | Continue to Step 1 |
 | `[SKIP] ...` | Continue to Step 1 (network issue — non-fatal) |
 | `[UPDATE_AVAILABLE] current=X latest=Y` | Show notice, then continue |
+| `[UPDATE_RECOMMENDED] current=X recommended=Y latest=Z` | Show strong notice, then continue |
 | `[UPDATE_REQUIRED] current=X min_compatible=Y latest=Z` | Show error and **stop** |
 
 **For `[UPDATE_AVAILABLE]`**, say:
 > "⚠️ גרסה חדשה של הסקיל זמינה (X → Y).
 > מומלץ לעדכן לפני שממשיכים:
+> ```
+> npx skills add https://github.com/textops/transcription-speech-to-text-hebrew --skill transcription-speech-to-text-hebrew
+> ```
+> ממשיך בכל זאת עם הגרסה הנוכחית..."
+
+**For `[UPDATE_RECOMMENDED]`**, say:
+> "❤️ גרסה חדשה מומלצת בחום (X → Y).
+> הגרסה הזו כוללת שיפורים משמעותיים — מומלץ בחום לעדכן:
 > ```
 > npx skills add https://github.com/textops/transcription-speech-to-text-hebrew --skill transcription-speech-to-text-hebrew
 > ```
@@ -102,7 +111,7 @@ Then continue to Step 1.
 
 If the user didn't provide a file yet, ask for it. Once you have the file:
 
-- If the URL contains `youtube.com` or `youtu.be` → go to **Step 1.5** first.
+- If the URL contains `youtube.com` or `youtu.be` → tell the user: `"Detected YouTube — sending to cloud for processing..."` and proceed directly to **Step 2** with the URL as-is. The cloud handles YouTube natively and also returns duration timing. Only go to **Step 1.5** if Step 2 fails.
 
 **Don't ask about speakers** — infer from context:
 
@@ -121,13 +130,14 @@ If the user didn't provide a file yet, ask for it. Once you have the file:
 
 **Never ask about output format** — always `--output-format text`.
 
-## Step 1.5: YouTube — Download audio locally
+## Step 1.5: YouTube — Fallback (local download)
 
-> Only when the input URL contains `youtube.com` or `youtu.be`.
+> Only when Step 2 fails for a YouTube URL (e.g. the cloud could not access the video).
+
+Tell the user:
+> "Cloud could not access the video — downloading locally..."
 
 **Script location**: `scripts/download_audio.py` is in the same directory as this SKILL.md file.
-
-Tell the user: `"זיהיתי YouTube — מוריד אודיו..."`
 
 ```bash
 python "<skill_dir>/scripts/download_audio.py" "<youtube_url>"
@@ -139,11 +149,11 @@ Read and act on these output tags:
 
 | Tag | Action |
 |---|---|
-| `[YTDLP] Installing...` | Tell user: "מתקין yt-dlp..." |
-| `[YTDLP] Ready (version X)` | Tell user: "yt-dlp מוכן (גרסה X)" |
-| `[AUDIO] Fetching audio...` | Tell user: "מוריד..." |
-| `[AUDIO] Updating yt-dlp and retrying...` | Tell user: "מעדכן yt-dlp ומנסה שוב..." |
-| `[FILE] /path/to/file.mp3` | **Save as `<downloaded_file>`**. Tell user (informational only — do not wait for confirmation): "הורדתי: `<filename>`" |
+| `[YTDLP] Installing...` | Tell user: "Installing yt-dlp..." |
+| `[YTDLP] Ready (version X)` | Tell user: "yt-dlp ready (version X)" |
+| `[AUDIO] Fetching audio...` | Tell user: "Downloading..." |
+| `[AUDIO] Updating yt-dlp and retrying...` | Tell user: "Updating yt-dlp and retrying..." |
+| `[FILE] /path/to/file.mp3` | **Save as `<downloaded_file>`**. Tell user (informational only — do not wait for confirmation): "Downloaded: `<filename>`" |
 | `ERROR: ...` | Show the error to the user and stop |
 
 On success: use `<downloaded_file>` as the input and continue from **Step 2** as a local file.
@@ -208,7 +218,9 @@ If the user provides the API key directly in the chat, write it into `textops_se
 Wait for the user to confirm before continuing.
 
 **Possible errors from the server when submitting a URL:**
-- `ERROR: URL is not publicly accessible` → If Google Drive, set sharing to "Anyone with the link".
+- `ERROR: URL is not publicly accessible` →
+  - If the URL is a YouTube link → go to **Step 1.5** (local download fallback).
+  - If Google Drive → set sharing to "Anyone with the link".
 - `ERROR: File format is not supported` → unsupported extension (e.g. `.docx`).
 
 **Read these values from the output and save them** — you'll need them in Phase B:
@@ -217,9 +229,10 @@ Wait for the user to confirm before continuing.
 |---|---|
 | `[UPLOAD] Uploading: file.mp4 (X MB)...` | Tell user: "מעלה קובץ (X MB)..." |
 | `[UPLOAD] Complete` | Tell user: "העלאה הסתיימה, שולח לעיבוד..." |
+| `[JOB] Submitting...` | Tell user: "Sending to server..." |
 | `[JOB] ID: abc123` | **Save job_id. Tell user: "עיבוד התחיל! Job ID: `abc123`"** |
 | `[OUTPUT] /path/to/base` | **Save base_path (no extension)** |
-| `[TIMING] first_check=36s poll_interval=15s estimated_total=45s` | **Save these three values** |
+| `[TIMING] first_check=36s poll_interval=15s estimated_total=45s` | **Save these three values.** Then tell the user the estimated time: if `estimated_total` is a number, convert to friendly units (e.g. 45 → "~45 seconds", 90 → "~1.5 minutes", 300 → "~5 minutes"); if `estimated_total` is `unknown`, say "Estimated processing time: unknown". Example: "Estimated processing time: ~2 minutes" |
 
 ## Step 3: Poll for result (Phase B)
 

@@ -20,7 +20,7 @@ GITHUB_VERSION_URL = (
     "https://raw.githubusercontent.com/TextOps/"
     "textops-skills/main/transcription-speech-to-text-hebrew/version.json"
 )
-TIMEOUT = 5
+TIMEOUT = 2
 
 
 def _skill_dir() -> str:
@@ -58,12 +58,17 @@ def main():
         remote = _fetch_remote()
         latest = remote["version"]
         min_compatible = remote.get("min_compatible", "0.0.0")
+        recommended = remote.get("recommended_version", "0.0.0")
     except Exception as e:
         print(f"[SKIP] could not fetch remote version: {e}")
         sys.exit(0)
 
     if _parse(local) < _parse(min_compatible):
         print(f"[UPDATE_REQUIRED] current={local} min_compatible={min_compatible} latest={latest}")
+        sys.exit(0)
+
+    if _parse(local) < _parse(recommended):
+        print(f"[UPDATE_RECOMMENDED] current={local} recommended={recommended} latest={latest}")
         sys.exit(0)
 
     if _parse(local) < _parse(latest):
