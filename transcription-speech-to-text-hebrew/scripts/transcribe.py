@@ -188,10 +188,12 @@ def submit_job(download_url, has_diarization, word_timestamps=False, min_speaker
             log(f"ERROR: {err}. {details}".strip())
         sys.exit(1)
     res.raise_for_status()
-    job_id = res.json()["textopsJobId"]
+    body = res.json()
+    job_id = body["textopsJobId"]
+    server_duration = body.get("duration_seconds")
     log(f"[JOB] ID: {job_id}")
     log(f"[JOB] Tip: if interrupted, resume with --job-id {job_id}")
-    return job_id
+    return job_id, server_duration
 
 
 def poll_job(job_id, initial_wait, poll_interval=POLL_INTERVAL, max_polls=MAX_POLLS):
@@ -418,7 +420,11 @@ def main():
         poll_interval = POLL_INTERVAL
         max_polls     = MAX_POLLS
 
-        job_id = submit_job(download_url, has_diarize, has_word_ts, min_speakers, max_speakers, is_hebrew)
+        job_id, server_duration = submit_job(download_url, has_diarize, has_word_ts, min_speakers, max_speakers, is_hebrew)
+
+        # For URLs (e.g. YouTube), local duration is unknown — use server-returned duration
+        if initial_wait is None and server_duration:
+            initial_wait = calc_initial_wait(server_duration, has_diarize)
 
         if args.submit_only:
             base_path = os.path.splitext(output_path)[0] if output_path else os.path.join(os.getcwd(), job_id + "_transcript")
